@@ -34,7 +34,7 @@ let parser filen token_list =
           last_token := head;
           token_list := tail;
           head
-      | [] -> raise (Exceptions.MissingEOF)
+      (*| [] -> raise (Exceptions.MissingEOF)*)
   in
   let program = Parser.program tokenizer (Lexing.from_string "") in
   program
