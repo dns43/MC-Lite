@@ -20,16 +20,14 @@ let escape = '\\' ['\\' ''' '"' 'n' 'r' 't']
 let escape_char = ''' (escape) '''
 let ascii = ([' '-'!' '#'-'[' ']'-'~'])
 let digit = ['0'-'9']
-let string = '"' ( (ascii | escape)*) '"'
+let id = alpha (alpha | digit | '_')*
+let string = '"' ( (ascii | escape)*) '"' 
 let char = ''' ( ascii | digit ) '''
 let float = (digit+) ['.'] digit+
 let int = digit+
 let whitespace = [' ' '\t' '\r']
 let return = '\n'
 
-(* 
-Non-Terminal Definiton
- *)
 rule token = parse
 whitespace { token lexbuf }
 | return   { incr lineno; token lexbuf}
@@ -40,6 +38,7 @@ whitespace { token lexbuf }
 | '['      { LBRACKET }
 | ']'      { RBRACKET }
 | ';'      { SEMI }
+| ','      { COMMA }
 
 (* Operators *)
 | ".*"     { MTIMES }
@@ -76,6 +75,9 @@ whitespace { token lexbuf }
 | "true"   { TRUE }
 | "false"  { FALSE }
 | "mat"    { MATRIX }
+| id as lxm   { ID(lxm) }
+
+
  
 (*
 Termonal Definition,

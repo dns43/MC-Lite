@@ -248,6 +248,7 @@ expr:
 	|	NEW type_tag bracket_args RBRACKET 	{ ArrayCreate(Datatype($2), List.rev $3) }
 	| 	expr bracket_args RBRACKET		 	{ ArrayAccess($1, List.rev $2) } 
 	| 	LPAREN expr RPAREN 					{ $2 }
+  |   expr EOF                      {$1}
 
 bracket_args:
 		LBRACKET expr						 { [$2] }
