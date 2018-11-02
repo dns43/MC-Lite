@@ -4,7 +4,7 @@ open Ast
 (*open Sast*)
 open Parser
 open Processor
-open Yojson
+(*open Yojson*)
 
 let save file string =
 	 let channel = open_out file in
@@ -15,11 +15,11 @@ let save file string =
 	(*Str.global_replace (Str.regexp_string input) output*)
 	
 (* Print data types *)
-
+(*
 let string_of_scope = function 
 		Public 	-> "public"
 	| 	Private -> "private"
-
+**)
 let string_of_primitive = function 
 		Int_t 						-> "int"
 	| 	Float_t 					-> "float"
@@ -215,31 +215,32 @@ let string_of_formal_name = function
 	| 	_ -> ""
 
 let string_of_func_decl fdecl =
-	"" ^ (string_of_scope fdecl.scope) ^ " " ^ (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
+	(*"" ^ (string_of_scope fdecl.scope) ^*) " " ^ (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
 	(* Formals *)
 	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
 		(* body *)
 		String.concat "" (List.map (string_of_stmt 2) fdecl.body) ^
 	"\t}\n\n"
 
-(* Class Printing *)
+(* Class Printing*) 
 
 let string_of_extends = function 
 		NoParent	-> ""
 	| 	Parent(s)	-> "extends " ^ s ^ " " 
+
 let string_of_field = function 
-	Field(s, d, id) -> (string_of_scope s) ^ " " ^ (string_of_datatype d) ^ " " ^ id ^ ";\n"
+	Field((*s,*) d, id) -> (*(string_of_scope s) ^ " " ^ *)(string_of_datatype d) ^ " " ^ id ^ ";\n"
 
 let string_of_cbody cbody = 
 	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_field cbody.fields)) ^
 	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_func_decl cbody.constructors)) ^
 	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_func_decl cbody.methods))
-
+(*
 let string_of_class_decl cdecl = 
 	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ "{\n" ^
 	(string_of_cbody cdecl.cbody) ^
 	"}\n"
-
+*)
 (* Include Printing *)
 
 let rec string_of_include = function 
@@ -248,9 +249,9 @@ let rec string_of_include = function
 (* Print whole program *)
 
 let string_of_program = function
-	Program(includes, cdecls) -> 
+	Program(includes, (*cdecls*)cbody) -> 
 		String.concat "" (List.map string_of_include includes) ^ "\n" ^
-		String.concat "\n" (List.map string_of_class_decl cdecls)
+		String.concat "\n" (List.map string_of_cbody cbody) (*class_decl cdecls)*)
 
 (* Print AST tree representation *)
 
@@ -258,10 +259,10 @@ let includes_tree includes =
 	`List (List.map (function Include s -> `String s) includes)
 
 let map_fields_to_json fields = 
-	`List (List.map (function Field(scope, datatype, s) -> 
+	`List (List.map (function Field((*scope,*) datatype, s) -> 
 		`Assoc [
 			("name", `String s);
-			("scope", `String (string_of_scope scope));
+			(*("scope", `String (string_of_scope scope));*)
 			("datatype", `String (string_of_datatype datatype));
 		]) fields)
 
@@ -309,7 +310,7 @@ let map_methods_to_json methods =
 	`List (List.map (fun (fdecl:Ast.func_decl) -> 
 		`Assoc [
 			("name", `String (string_of_fname fdecl.fname));
-			("scope", `String (string_of_scope fdecl.scope));
+			(*("scope", `String (string_of_scope fdecl.scope));*)
 			("returnType", `String (string_of_datatype fdecl.returnType));
 			("formals", map_formals_to_json fdecl.formals);
 			("body", `List (List.map (map_stmt_to_json) fdecl.body));
@@ -317,13 +318,13 @@ let map_methods_to_json methods =
 
 
 let cdecls_tree cdecls =
-	let map_cdecl_to_json cdecl = 
+	let map_cdecl_to_json cbody = 
 		`Assoc [
-			("cname", `String cdecl.cname);
-			("extends", `String (string_of_extends cdecl.extends));
-			("fields", map_fields_to_json cdecl.cbody.fields);
-			("methods", map_methods_to_json cdecl.cbody.methods);
-			("constructors", map_methods_to_json cdecl.cbody.constructors)
+			(*("cname", `String cdecl.cname);
+			("extends", `String (string_of_extends cdecl.extends));*)
+			("fields", map_fields_to_json (*cdecl.*)cbody.fields);
+			("methods", map_methods_to_json (*cdecl.*)cbody.methods);
+			("constructors", map_methods_to_json (*cdecl.*)cbody.constructors)
 		]
 	in
 	`List (List.map (map_cdecl_to_json) cdecls)
