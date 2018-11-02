@@ -5,9 +5,8 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES MTIMES MDIVIDE DIVIDE ASSIGN TRANSPOSE
 %token EQ NEQ LT LEQ GT GEQ BAR
-%token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE
+%token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE MATRIX_LITERAL
 %token <int> INT_LITERAL
-%token <int> MATRIX_LITERAL
 %token <float> FLOAT_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
@@ -181,12 +180,8 @@ primitive:
 	| 	BOOL 		{ Bool_t }
 	| 	MATRIX    	{ Matrix_t }
 
-name:
-	CLASS ID { Objecttype($2) }
-
 type_tag:
 		primitive { $1 }
-	|	name	  { $1 }
 
 array_type:
 	type_tag LBRACKET brackets RBRACKET { Arraytype($1, $3) }
@@ -260,7 +255,6 @@ bracket_args:
 
 literals:
 	  INT_LITERAL      		{ Int_Lit($1) }
-	| MATRIX_LITERAL   		{ Mat_Lit($1) }
 	| FLOAT_LITERAL    		{ Float_Lit($1) }
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }

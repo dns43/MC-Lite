@@ -11,22 +11,23 @@ type expr =
 		Int_Lit of int
 	| 	Boolean_Lit of bool
 	| 	Float_Lit of float
-	| 	String_Lit of string
-	| 	Char_Lit of char
-	| 	This
+	| 	Mat_Lit of expr list
+  | 	String_Lit of string
+  | 	Char_Lit of char
+  | 	This
 	| 	Id of string
 	| 	Binop of expr * op * expr
 	| 	Assign of expr * expr
 	| 	Noexpr
-	| 	ArrayCreate of datatype * expr list
-	| 	ArrayAccess of expr * expr list
-	| 	ObjAccess of expr * expr
+  | 	ArrayCreate of datatype * expr list
+  | 	ArrayAccess of expr * expr list
+  | 	ObjAccess of expr * expr
 	| 	Call of string * expr list  
-	|   ObjectCreate of string * expr list
-	| 	ArrayPrimitive of expr list
+  |   ObjectCreate of string * expr list
+  | 	ArrayPrimitive of expr list
 	|  	Unop of op * expr
 	| 	Null
-	| 	Delete of expr
+  | 	Delete of expr
 
 type stmt =
 		Block of stmt list
@@ -37,10 +38,11 @@ type stmt =
 	| 	While of expr * stmt
 	|  	Break
 	|   Continue
-	|   Local of datatype * string * expr
+  |   Local of datatype * string * expr
 
 type field = Field of scope * datatype * string
 type include_stmt = Include of string
+
 
 type func_decl = {
 	scope : scope;
