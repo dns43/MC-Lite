@@ -178,7 +178,6 @@ actuals_list:
 primitive:
 		INT 		{ Int_t }
 	| 	FLOAT		{ Float_t } 
-	| 	CHAR		{ Char_t }
 	| 	BOOL 		{ Bool_t }
 	| 	MATRIX    	{ Matrix_t }
 

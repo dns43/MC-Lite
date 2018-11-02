@@ -1,6 +1,6 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod
 type scope = Private | Public
-type primitive = Int_t | Float_t | Void_t | Bool_t | Char_t | Objecttype of string | ConstructorType | Null_t
+type primitive = Int_t | Float_t | Void_t | Bool_t | Matrix_t | ConstructorType | Null_t
 type datatype = Arraytype of primitive * int | Datatype of primitive | Any
 
 type extends = NoParent | Parent of string
