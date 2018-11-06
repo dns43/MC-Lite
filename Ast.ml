@@ -1,5 +1,4 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod
-(*type scope = Private | Public*)
 type primitive = Int_t | Float_t | Void_t | Bool_t | Matrix_t | ConstructorType | Null_t
 type datatype = Arraytype of primitive * int | Datatype of primitive | Any
 
@@ -44,8 +43,7 @@ type field = Field of (*scope **) datatype * string
 type include_stmt = Include of string
 
 
-type func_decl = {
-(*	scope : scope;*)
+type fdecl = {
 	fname : fname;
 	returnType : datatype;
 	formals : formal list;
@@ -54,16 +52,8 @@ type func_decl = {
 	root_cname : string option;
 }
 
-type cbody = {
-	fields : field list;
-	constructors : func_decl list;
-	methods : func_decl list;
-}
-(*
-type class_decl = {
-	cname : string;
-	extends : extends;
-	cbody: cbody;
-}
-*)
-type program = Program of include_stmt list * cbody (*class_decl*) list
+type top_stmt =
+    Function of fdecl
+  | Statement of stmt 
+
+type program = Program of include_stmt list * top_stmt list

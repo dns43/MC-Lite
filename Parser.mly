@@ -34,7 +34,25 @@ $right TRANSPOSE
 %%
 
 program:
-		includes cbody EOF { Program($1, $2) }
+		includes top_stmts EOF { Program($1, $2) }
+
+/******************
+	TOP_STMTS
+******************/
+
+top_stmts:
+		/* nothing */ { [] }
+  	| 	top_stmt_list  { List.rev $1 }
+
+top_stmt_list:
+    	top_stmt              { [$1] }
+  	| 	top_stmt_list top_stmt { $2::$1 }
+
+top_stmt:
+  stmt                      { Statement($1) }
+  | fdecl                   { Function($1) }
+
+
 
 /******************
 	INCLUDE
@@ -53,76 +71,21 @@ include_decl:
 
 
 /******************
- CLASSES
-******************/
-cbody:
-		/* nothing */ { { 
-			fields = [];
-			constructors = [];
-			methods = [];
-		} }
- 	| 	cbody field { { 
-			fields = $2 :: $1.fields;
-			constructors = $1.constructors;
-			methods = $1.methods;
-		} }
- 	| 	cbody constructor { { 
-			fields = $1.fields;
-			constructors = $2 :: $1.constructors;
-			methods = $1.methods;
-		} }
- 	| 	cbody fdecl { { 
-			fields = $1.fields;
-			constructors = $1.constructors;
-			methods = $2 :: $1.methods;
-		} }
-
-
-/******************
- CONSTRUCTORS
-******************/
-
-constructor:
-	CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE {
-		{
-			scope = Public;
-			fname = Constructor;
-			returnType = Datatype(ConstructorType);
-			formals = $3;
-			body = List.rev $6;
-			overrides = false;
-            root_cname = None;
-		}
-	}
-
-/******************
- FIELDS
-******************/
-
-scope:
-		PRIVATE { Private }
-	| 	PUBLIC  { Public }
-
-/* public UserObj name; */
-field:
-		scope datatype ID SEMI { Field($1, $2, $3) }
-
-/******************
  METHODS
 ******************/
 
 fname:
 	ID { $1 }
 
+
 fdecl:
-	scope datatype fname LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE 
+	datatype fname LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE 
 	{ 
 		{
-			scope = $1;
-			fname = FName($3);
-			returnType = $2;
-			formals = $5;
-			body = List.rev $8;
+			fname = FName($2);
+			returnType = $1;
+			formals = $4;
+			body = List.rev $7;
 			overrides = false;
             root_cname = None;
 		} 

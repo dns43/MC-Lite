@@ -231,10 +231,10 @@ let string_of_extends = function
 let string_of_field = function 
 	Field((*s,*) d, id) -> (*(string_of_scope s) ^ " " ^ *)(string_of_datatype d) ^ " " ^ id ^ ";\n"
 
-let string_of_cbody cbody = 
-	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_field cbody.fields)) ^
-	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_func_decl cbody.constructors)) ^
-	String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_func_decl cbody.methods))
+(*let string_of_cbody cbody = *)
+	(*String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_field cbody.fields)) ^*)
+	(*String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_func_decl cbody.constructors)) ^*)
+	(*String.concat "" (List.map (fun s -> "\t" ^ s) (List.map string_of_func_decl cbody.methods))*)
 (*
 let string_of_class_decl cdecl = 
 	"class " ^ cdecl.cname ^ " " ^ (string_of_extends cdecl.extends) ^ "{\n" ^
@@ -250,8 +250,9 @@ let rec string_of_include = function
 
 let string_of_program = function
 	Program(includes, (*cdecls*)cbody) -> 
-		String.concat "" (List.map string_of_include includes) ^ "\n" ^
-		String.concat "\n" (List.map string_of_cbody cbody) (*class_decl cdecls)*)
+		String.concat "" (List.map string_of_include includes) ^ "\n" 
+    (*^*)
+		(*String.concat "\n" (List.map string_of_cbody cbody) (*class_decl cdecls)*)*)
 
 (* Print AST tree representation *)
 
@@ -307,7 +308,7 @@ let rec map_stmt_to_json = function
 	|   Local(d, s, e) 			-> `Assoc [("local", `Assoc [("datatype", `String (string_of_datatype d)); ("name", `String s); ("val", map_expr_to_json e)])]
 
 let map_methods_to_json methods = 
-	`List (List.map (fun (fdecl:Ast.func_decl) -> 
+	`List (List.map (fun (fdecl:Ast.fdecl) -> 
 		`Assoc [
 			("name", `String (string_of_fname fdecl.fname));
 			(*("scope", `String (string_of_scope fdecl.scope));*)
@@ -316,25 +317,35 @@ let map_methods_to_json methods =
 			("body", `List (List.map (map_stmt_to_json) fdecl.body));
 		]) methods)
 
+let map_top_stmt_to_json = function
+      Function(fdecl) -> `Assoc [("fdecl", `String (string_of_func_decl fdecl))]
+  |   Statement(stmt)     -> `Assoc [("stmt", `String ((string_of_stmt 0) stmt))]
 
-let cdecls_tree cdecls =
-	let map_cdecl_to_json cbody = 
-		`Assoc [
-			(*("cname", `String cdecl.cname);
-			("extends", `String (string_of_extends cdecl.extends));*)
-			("fields", map_fields_to_json (*cdecl.*)cbody.fields);
-			("methods", map_methods_to_json (*cdecl.*)cbody.methods);
-			("constructors", map_methods_to_json (*cdecl.*)cbody.constructors)
-		]
-	in
-	`List (List.map (map_cdecl_to_json) cdecls)
+
+
+let top_statements_list top_statements = 
+    `List (List.map (map_top_stmt_to_json) top_statements)
+
+
+(*let cdecls_tree cdecls =*)
+	(*let map_cdecl_to_json cbody = *)
+		(*`Assoc [*)
+			(*(*("cname", `String cdecl.cname);*)
+			(*("extends", `String (string_of_extends cdecl.extends));*)*)
+			(*(*("fields", map_fields_to_json (*cdecl.*)cbody.fields);*)*)
+			(*("methods", map_methods_to_json (*cdecl.*)cbody.methods);*)
+			(*("constructors", map_methods_to_json (*cdecl.*)cbody.constructors)*)
+		(*]*)
+	(*in*)
+	(*`List (List.map (map_cdecl_to_json) cdecls)*)
 
 let print_tree = function
-	Program(includes, cdecls) -> 
+	Program(includes, top_statements) -> 
 		`Assoc [("program", 
 			`Assoc([
 				("includes", includes_tree includes);
-				("classes", cdecls_tree cdecls)
+				("top_statements", top_statements_list top_statements);
+				(*("classes", cdecls_tree cdecls)*)
 			])
 		)]
 
