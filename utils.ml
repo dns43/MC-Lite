@@ -307,19 +307,20 @@ let rec map_stmt_to_json = function
 	|  	Continue				-> `String "continue"
 	|   Local(d, s, e) 			-> `Assoc [("local", `Assoc [("datatype", `String (string_of_datatype d)); ("name", `String s); ("val", map_expr_to_json e)])]
 
-let map_methods_to_json methods = 
-	`List (List.map (fun (fdecl:Ast.fdecl) -> 
+let map_method_to_json methods = 
+	function fdecl -> 
 		`Assoc [
 			("name", `String (string_of_fname fdecl.fname));
 			(*("scope", `String (string_of_scope fdecl.scope));*)
 			("returnType", `String (string_of_datatype fdecl.returnType));
 			("formals", map_formals_to_json fdecl.formals);
 			("body", `List (List.map (map_stmt_to_json) fdecl.body));
-		]) methods)
+		]
+	(*`List (List.map (fun (fdecl:Ast.fdecl) -> *)
 
 let map_top_stmt_to_json = function
       Function(fdecl) -> `Assoc [("fdecl", `String (string_of_func_decl fdecl))]
-  |   Statement(stmt)     -> `Assoc [("stmt", `String ((string_of_stmt 0) stmt))]
+  |   Statement(stmt)     -> `Assoc [("stmt", map_stmt_to_json stmt)]
 
 
 
