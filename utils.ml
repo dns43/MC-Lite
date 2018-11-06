@@ -12,7 +12,7 @@ let save file string =
 	 close_out channel
 
 (*let replace input output =*)
-	(*Str.global_replace (Str.regexp_string input) output*)
+    	(*Str.global_replace (Str.regexp_string input) output*)
 	
 (* Print data types *)
 (*
@@ -26,7 +26,6 @@ let string_of_primitive = function
 	| 	Float_t 					-> "float"
 	| 	Void_t						-> "void"
 	| 	Bool_t 						-> "bool"
-	|  	Null_t 						-> "null"
 
 let string_of_object = function
 	 	_ -> ""
@@ -70,7 +69,7 @@ and string_of_expr = function
 	|	Boolean_Lit(b)			-> if b then "true" else "false"
 	|	Float_Lit(f)			-> string_of_float f
 	|	String_Lit(s)			-> "\"" ^ (String.escaped s) ^ "\""
-	|	Char_Lit(c)				-> Char.escaped c
+	|	Mat_Lit(f)			-> string_of_array_primitive f
 	|	This					-> "this"
 	|	Id(s)					-> s
 	|	Binop(e1, o, e2)		-> (string_of_expr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_expr e2)
@@ -87,11 +86,11 @@ and string_of_expr = function
 	| 	Delete(e) 				-> "delete (" ^ (string_of_expr e) ^ ")"
 ;;
 
-let rec string_of_bracket_sexpr = function
-		[] 				-> ""
+(*let rec string_of_bracket_sexpr = function*)
+		(*[] 				-> ""*)
 	(*| 	head :: tail 	-> "[" ^ (string_of_sexpr head) ^ "]" ^ (string_of_bracket_sexpr tail)*)
-and string_of_sarray_primitive = function
-		[] 				-> ""
+(*and string_of_sarray_primitive = function*)
+		(*[] 				-> ""*)
 	(*|   [last]			-> (string_of_sexpr last)*)
 	(*| 	head :: tail 	-> (string_of_sexpr head) ^ ", " ^ (string_of_sarray_primitive tail)*)
 (*and string_of_sexpr = function *)
@@ -280,8 +279,7 @@ let rec map_expr_to_json = function
 		Int_Lit(i)				-> `Assoc [("int_lit", `Int i)]
 	|	Boolean_Lit(b)			-> `Assoc [("bool_lit", `Bool b)]
 	|	Float_Lit(f)			-> `Assoc [("float_lit", `Float f)]
-	|	String_Lit(s)			-> `Assoc [("string_lit", `String s)]
-	|	Char_Lit(c)				-> `Assoc [("char_lit", `String (Char.escaped c))]
+	|	Mat_Lit(f)			-> `Assoc [("mat_lit", `List(List.map map_expr_to_json f))]
 	|	This					-> `String "this"
 	|	Id(s)					-> `Assoc [("id", `String s)]
 	|	Binop(e1, o, e2)		-> `Assoc [("binop", `Assoc [("lhs", map_expr_to_json e1); ("op", `String (string_of_op o)); ("rhs", map_expr_to_json e2)])]
@@ -308,19 +306,20 @@ let rec map_stmt_to_json = function
 	|  	Continue				-> `String "continue"
 	|   Local(d, s, e) 			-> `Assoc [("local", `Assoc [("datatype", `String (string_of_datatype d)); ("name", `String s); ("val", map_expr_to_json e)])]
 
-let map_methods_to_json methods = 
-	`List (List.map (fun (fdecl:Ast.fdecl) -> 
+let map_method_to_json methods = 
+	function fdecl -> 
 		`Assoc [
 			("name", `String (string_of_fname fdecl.fname));
 			(*("scope", `String (string_of_scope fdecl.scope));*)
 			("returnType", `String (string_of_datatype fdecl.returnType));
 			("formals", map_formals_to_json fdecl.formals);
 			("body", `List (List.map (map_stmt_to_json) fdecl.body));
-		]) methods)
+		]
+	(*`List (List.map (fun (fdecl:Ast.fdecl) -> *)
 
 let map_top_stmt_to_json = function
       Function(fdecl) -> `Assoc [("fdecl", `String (string_of_func_decl fdecl))]
-  |   Statement(stmt)     -> `Assoc [("stmt", `String ((string_of_stmt 0) stmt))]
+  |   Statement(stmt)     -> `Assoc [("stmt", map_stmt_to_json stmt)]
 
 
 
@@ -424,7 +423,7 @@ let print_tree = function
 (* Print tokens *)
 
 let string_of_token = function
-		LPAREN				-> "LPAREN"	
+	  	LPAREN				-> "LPAREN"	
 	| 	RPAREN				-> "RPAREN"	
 	| 	LBRACE				-> "LBRACE"	
 	| 	RBRACE				-> "RBRACE"	
@@ -433,7 +432,10 @@ let string_of_token = function
 	| 	PLUS				-> "PLUS"	
 	| 	MINUS				-> "MINUS"	
 	| 	TIMES				-> "TIMES"	
+	| 	MTIMES				-> "MTIMES"	
 	| 	DIVIDE				-> "DIVIDE"	
+	| 	MDIVIDE				-> "MDIVIDE"	
+	| 	TRANSPOSE     -> "TRANSPOSE"
 	| 	ASSIGN				-> "ASSIGN"	
 	| 	EQ					-> "EQ"
 	| 	NEQ					-> "NEQ"
@@ -456,31 +458,32 @@ let string_of_token = function
 	| 	INT					-> "INT"
 	| 	FLOAT				-> "FLOAT"	
 	| 	BOOL				-> "BOOL"	
-	| 	CHAR				-> "CHAR"	
+	| 	MATRIX				-> "MATRIX"	
+	(*| 	CHAR				-> "CHAR"	*)
 	| 	VOID				-> "VOID"	
 	| 	NULL				-> "NULL"	
 	| 	TRUE				-> "TRUE"	
 	| 	FALSE				-> "FALSE"	
-	| 	CLASS				-> "CLASS"	
-	| 	CONSTRUCTOR			-> "CONSTRUCTOR"		
-	| 	PUBLIC				-> "PUBLIC"	
-	| 	PRIVATE				-> "PRIVATE"	
-	| 	EXTENDS				-> "EXTENDS"	
+	(*| 	CLASS				-> "CLASS"	*)
+	(*| 	CONSTRUCTOR			-> "CONSTRUCTOR"		*)
+	(*| 	PUBLIC				-> "PUBLIC"	*)
+	(*| 	PRIVATE				-> "PRIVATE"	*)
+	(*| 	EXTENDS				-> "EXTENDS"	*)
 	| 	INCLUDE				-> "INCLUDE"	
-	| 	THIS				-> "THIS"	
+	(*| 	THIS				-> "THIS"	*)
 	| 	BREAK				-> "BREAK"	
 	| 	CONTINUE			-> "CONTINUE"	
-	|   NEW 				-> "NEW"	
-	| 	INT_LITERAL(i)		-> "INT_LITERAL(" ^ string_of_int i ^ ")"
-	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL(" ^ string_of_float f ^ ")"
-	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL(" ^ Char.escaped c ^ ")"
-	| 	STRING_LITERAL(s)	-> "STRING_LITERAL(" ^ s ^ ")"
-	| 	ID(s)				-> "ID(" ^ s ^ ")"
+	(*|   NEW 				-> "NEW"		*)
+	| 	INT_LITERAL(i)		-> "INT_LITERAL"
+	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL"
+	| 	STRING_LITERAL(s)	-> "STRING_LITERAL"
+	| 	MATRIX_LITERAL	-> "MATRIX_LITERAL"
+	| 	ID(s)				-> "ID"
 	| 	DELETE 				-> "DELETE"
 	|  	EOF					-> "EOF"
 
 let string_of_token_no_id = function
-		LPAREN				-> "LPAREN"	
+	  	LPAREN				-> "LPAREN"	
 	| 	RPAREN				-> "RPAREN"	
 	| 	LBRACE				-> "LBRACE"	
 	| 	RBRACE				-> "RBRACE"	
@@ -489,7 +492,10 @@ let string_of_token_no_id = function
 	| 	PLUS				-> "PLUS"	
 	| 	MINUS				-> "MINUS"	
 	| 	TIMES				-> "TIMES"	
+	| 	MTIMES				-> "MTIMES"	
 	| 	DIVIDE				-> "DIVIDE"	
+	| 	MDIVIDE				-> "MDIVIDE"	
+	| 	TRANSPOSE     -> "TRANSPOSE"
 	| 	ASSIGN				-> "ASSIGN"	
 	| 	EQ					-> "EQ"
 	| 	NEQ					-> "NEQ"
@@ -513,25 +519,26 @@ let string_of_token_no_id = function
     | 	MATRIX				-> "MAT"
 	| 	FLOAT				-> "FLOAT"	
 	| 	BOOL				-> "BOOL"	
-	| 	CHAR				-> "CHAR"	
+	| 	MATRIX				-> "MATRIX"	
+	(*| 	CHAR				-> "CHAR"	*)
 	| 	VOID				-> "VOID"	
 	| 	NULL				-> "NULL"	
 	| 	TRUE				-> "TRUE"	
 	| 	FALSE				-> "FALSE"	
-	| 	CLASS				-> "CLASS"	
-	| 	CONSTRUCTOR			-> "CONSTRUCTOR"		
-	| 	PUBLIC				-> "PUBLIC"	
-	| 	PRIVATE				-> "PRIVATE"	
-	| 	EXTENDS				-> "EXTENDS"	
+	(*| 	CLASS				-> "CLASS"	*)
+	(*| 	CONSTRUCTOR			-> "CONSTRUCTOR"		*)
+	(*| 	PUBLIC				-> "PUBLIC"	*)
+	(*| 	PRIVATE				-> "PRIVATE"	*)
+	(*| 	EXTENDS				-> "EXTENDS"	*)
 	| 	INCLUDE				-> "INCLUDE"	
-	| 	THIS				-> "THIS"	
+	(*| 	THIS				-> "THIS"	*)
 	| 	BREAK				-> "BREAK"	
 	| 	CONTINUE			-> "CONTINUE"	
-	|   NEW 				-> "NEW"		
+	(*|   NEW 				-> "NEW"		*)
 	| 	INT_LITERAL(i)		-> "INT_LITERAL"
 	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL"
-	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL"
 	| 	STRING_LITERAL(s)	-> "STRING_LITERAL"
+	| 	MATRIX_LITERAL	-> "MATRIX_LITERAL"
 	| 	ID(s)				-> "ID"
 	| 	DELETE 				-> "DELETE"
 	|  	EOF					-> "EOF"
