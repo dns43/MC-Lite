@@ -10,7 +10,7 @@ type expr =
 		Int_Lit of int
 	| 	Boolean_Lit of bool
 	| 	Float_Lit of float
-	| 	Mat_Lit of expr list
+	| 	Mat_Lit of int
   | 	String_Lit of string
   | 	Char_Lit of char
   | 	This

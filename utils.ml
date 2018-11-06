@@ -22,6 +22,7 @@ let string_of_scope = function
 **)
 let string_of_primitive = function 
 		Int_t 						-> "int"
+    |	Matrix_t 					-> "mat"
 	| 	Float_t 					-> "float"
 	| 	Void_t						-> "void"
 	| 	Bool_t 						-> "bool"
@@ -509,6 +510,7 @@ let string_of_token_no_id = function
 	| 	WHILE				-> "WHILE"	
 	| 	RETURN				-> "RETURN"	
 	| 	INT					-> "INT"
+    | 	MATRIX				-> "MAT"
 	| 	FLOAT				-> "FLOAT"	
 	| 	BOOL				-> "BOOL"	
 	| 	CHAR				-> "CHAR"	

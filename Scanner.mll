@@ -25,6 +25,7 @@ let string = '"' ( (ascii | escape)*) '"'
 let char = ''' ( ascii | digit ) '''
 let float = (digit+) ['.'] digit+
 let int = digit+
+let matrix = ['['] float ([','] float)* [']']
 let whitespace = [' ' '\t' '\r']
 let return = '\n'
 
@@ -78,18 +79,14 @@ whitespace { token lexbuf }
 | id as lxm   { ID(lxm) }
 
 
- 
-(*
-Termonal Definition,
-meaning that these dont have children,
-but also meaning that
-all others MUST have children
-*)
+(*names the input e.g. "5" as INT_LITERAL*)
+
 | int as lxm          { INT_LITERAL(int_of_string lxm) }
 | float as lxm        { FLOAT_LITERAL(float_of_string lxm) }
-| char as lxm         { CHAR_LITERAL( String.get lxm 1 ) }
+| matrix as lxm       { MATRIX_LITERAL(int_of_string lxm) }
+(*| char as lxm         { CHAR_LITERAL( String.get lxm 1 ) }
 | escape_char as lxm{ CHAR_LITERAL( String.get (unescape lxm) 1) }
-(*| string              { STRING_LITERAL(unescape s) }*)
+| string              { STRING_LITERAL(unescape s) }*)
 | eof                 { EOF }
 
 (*| '"'             { raise (Exceptions.UnmatchedQuotation(!lineno)) }

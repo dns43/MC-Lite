@@ -5,7 +5,8 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
 %token AND NOT OR PLUS MINUS TIMES MTIMES MDIVIDE DIVIDE ASSIGN TRANSPOSE
 %token EQ NEQ LT LEQ GT GEQ BAR
-%token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE MATRIX_LITERAL
+%token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE 
+%token <int> MATRIX_LITERAL
 %token <int> INT_LITERAL
 %token <float> FLOAT_LITERAL
 %token <string> STRING_LITERAL
@@ -200,7 +201,8 @@ bracket_args:
 
 literals:
 	  INT_LITERAL      		{ Int_Lit($1) }
-	| FLOAT_LITERAL    		{ Float_Lit($1) }
+    | MATRIX_LITERAL        { Mat_Lit($1) }
+    | FLOAT_LITERAL    		{ Float_Lit($1) }
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }
 	| STRING_LITERAL   		{ String_Lit($1) }  
