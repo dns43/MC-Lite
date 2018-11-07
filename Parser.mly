@@ -192,6 +192,9 @@ stmt:
 	| 	datatype ID ASSIGN expr SEMI 	{ Local($1, $2, $4) }
   | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET SEMI                
         {MatrixDecl(Matrix_t, $4, $6)}
+        /*{MatrixDecl(Matrix_t, $4, $6, Noexpr)}
+  | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET ASSIGN expr SEMI                
+        {MatrixDecl(Matrix_t, $4, $6, $9)} */
 
 
 expr_opt:
