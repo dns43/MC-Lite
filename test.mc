@@ -1,5 +1,5 @@
 int x = 1;
-int y = 
+int y = x++;
 
 
 mat m[2, 2];
