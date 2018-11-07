@@ -1,6 +1,7 @@
 type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod
 type primitive = Int_t | Float_t | Void_t | Bool_t | Matrix_t | ConstructorType | Null_t
-type datatype = Arraytype of primitive * int | Datatype of primitive | Any
+(*/*type datatype = Arraytype of primitive * int | Datatype of primitive | Any*/*)
+type datatype =  Datatype of primitive | Any
 
 type extends = NoParent | Parent of string
 type fname = Constructor | FName of string
@@ -10,7 +11,7 @@ type expr =
 		Int_Lit of int
 	| 	Boolean_Lit of bool
 	| 	Float_Lit of float
-	| 	Mat_Lit of int
+	| 	Mat_Lit of expr list
   | 	String_Lit of string
   | 	Char_Lit of char
   | 	This
@@ -38,6 +39,7 @@ type stmt =
 	|  	Break
 	|   Continue
   |   Local of datatype * string * expr
+  |   MatrixDecl of primitive * int * int
 
 type field = Field of (*scope **) datatype * string
 type include_stmt = Include of string

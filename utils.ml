@@ -36,8 +36,8 @@ let rec print_brackets = function
 	| 	a -> "[]" ^ print_brackets (a - 1)
 		
 let string_of_datatype = function 
-		Arraytype(p, i)	-> (string_of_primitive p) ^ (print_brackets i)
-	| 	Datatype(p)		-> (string_of_primitive p)
+		(*Arraytype(p, i)	-> (string_of_primitive p) ^ (print_brackets i)*)
+	 	Datatype(p)		-> (string_of_primitive p)
 	|  	Any 			-> "Any"
 
 (* Print expressions *)
@@ -157,6 +157,7 @@ let rec string_of_stmt indent =
 		|  	Break					-> indent_string ^ "break;\n"
 		|  	Continue				-> indent_string ^ "continue;\n"
 		|   Local(d, s, e) 			-> indent_string ^ string_of_datatype d ^ " " ^ s ^ string_of_local_expr e ^ ";\n"
+    |   MatrixDecl(m, r, c) -> indent_string ^ "mat["^string_of_int r^","^string_of_int c^"];\n"
 	in get_stmt_string
 
 (*let string_of_local_sexpr = function*)
@@ -510,7 +511,7 @@ let string_of_token_no_id = function
 	| 	WHILE				-> "WHILE"	
 	| 	RETURN				-> "RETURN"	
 	| 	INT					-> "INT"
-    | 	MATRIX				-> "MAT"
+    | 	MATRIX				-> "MATRIX"
 	| 	FLOAT				-> "FLOAT"	
 	| 	BOOL				-> "BOOL"	
 	| 	CHAR				-> "CHAR"	

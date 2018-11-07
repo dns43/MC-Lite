@@ -3,3 +3,6 @@ int name (int x, float y) {
   return 0;
 }
 
+
+name(1, 2.0);
+
