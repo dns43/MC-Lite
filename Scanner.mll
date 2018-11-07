@@ -38,6 +38,8 @@ whitespace { token lexbuf }
 | ')'      { RPAREN }
 | '['      { LBRACKET }
 | ']'      { RBRACKET }
+| '{'      { LBRACE }
+| '}'      { RBRACE }
 | ';'      { SEMI }
 | ','      { COMMA }
 
