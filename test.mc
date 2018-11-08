@@ -29,8 +29,15 @@ m4 = m2 .* m3;
 int my_function (int x, float y) {
 
   // z is scoped within {}
-  int z = x + x;
-  return 0;
+  int z = 0;
+  int i = 0;
+
+  // while loop
+  while (i < 10) {
+    z = z + i;
+    i++;
+  }
+  return z;
 }
 
 // function call
