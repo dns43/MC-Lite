@@ -39,7 +39,7 @@ type stmt =
 	|  	Break
 	|   Continue
   |   Local of datatype * string * expr
-  |   MatrixDecl of primitive * int * int * expr
+  |   MatrixDecl of primitive * string * int * int * expr
 
 type field = Field of (*scope **) datatype * string
 type include_stmt = Include of string

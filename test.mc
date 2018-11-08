@@ -17,6 +17,8 @@ m = [1, 2, 3, 4];
 // declar 2x2 matrix and assign values in one step
 // note ints will be cast to floats when assigned to matrix
 mat m2[2, 2] = [1,2,3,4];
+mat m3[2, 2] = [6,7,8,9];
+mat m4[2, 2] = m2 * m3;
 
 
 // sample function declaration

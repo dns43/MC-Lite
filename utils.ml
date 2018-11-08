@@ -160,7 +160,7 @@ let rec string_of_stmt indent =
 		|  	Break					-> indent_string ^ "break;\n"
 		|  	Continue				-> indent_string ^ "continue;\n"
 		|   Local(d, s, e) 			-> indent_string ^ string_of_datatype d ^ " " ^ s ^ string_of_local_expr e ^ ";\n"
-    |   MatrixDecl(m, r, c, e) -> indent_string ^ "mat["^string_of_int r^","^string_of_int c^"]"^ string_of_local_expr e^";\n"
+    |   MatrixDecl(m, n, r, c, e) -> indent_string ^ "mat "^n^"["^string_of_int r^","^string_of_int c^"]"^ string_of_local_expr e^";\n"
 	in get_stmt_string
 
 (*let string_of_local_sexpr = function*)
