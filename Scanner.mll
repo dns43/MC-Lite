@@ -97,7 +97,7 @@ whitespace { token lexbuf }
 | _ as illegal  { raise (Exceptions.IllegalCharacter(!filename, illegal, !lineno)) }
 *)
 and comment = parse
-	return  { incr lineno; comment lexbuf }
-	|   "*/"    { decr depth; if !depth > 0 then comment lexbuf else token lexbuf }
-	|   "/*"    { incr depth; comment lexbuf }
+	return  { incr lineno; token lexbuf }
+	(*|   "*/"    { decr depth; if !depth > 0 then comment lexbuf else token lexbuf }*)
+	(*|   "/*"    { incr depth; comment lexbuf }*)
 	|   _       { comment lexbuf }
