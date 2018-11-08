@@ -3,10 +3,9 @@
 %token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS PRIVATE PUBLIC
 %token MATRIX INT FLOAT BOOL CHAR VOID NULL TRUE FALSE
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
-%token AND NOT OR PLUS MINUS TIMES MTIMES MDIVIDE DIVIDE ASSIGN TRANSPOSE
+%token AND NOT OR PLUS  PLUSPLUS MINUS MINUSMINUS TIMES MTIMES MDIVIDE DIVIDE ASSIGN TRANSPOSE
 %token EQ NEQ LT LEQ GT GEQ BAR
 %token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE 
-%token <int> MATRIX_LITERAL
 %token <int> INT_LITERAL
 %token <float> FLOAT_LITERAL
 %token <string> STRING_LITERAL
@@ -21,6 +20,7 @@
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
+%left PLUSPLUS MINUSMINUS
 %left TIMES MTIMES DIVIDE MDIVIDE
 $right TRANSPOSE
 %right NOT
@@ -69,6 +69,21 @@ include_list:
 
 include_decl:
 	INCLUDE LPAREN STRING_LITERAL RPAREN SEMI { Include($3) }
+
+
+/******************
+ MATRICES
+******************/
+
+
+
+mat_member_list:
+  expr      { [$1]  }
+  | mat_member_list COMMA expr  { $3::$1 }
+
+mat_lit:
+  LBRACKET mat_member_list RBRACKET { $2 }
+
 
 
 /******************
@@ -123,17 +138,16 @@ primitive:
 		INT 		{ Int_t }
 	| 	FLOAT		{ Float_t } 
 	| 	BOOL 		{ Bool_t }
-	| 	MATRIX    	{ Matrix_t }
 
 type_tag:
 		primitive { $1 }
 
-array_type:
-	type_tag LBRACKET brackets RBRACKET { Arraytype($1, $3) }
+matrix_type:
+  MATRIX {Matrix_t}
+
 
 datatype:
-		type_tag   { Datatype($1) }
-	| 	array_type { $1 }
+		  type_tag    { Datatype($1) }
 
 brackets:
 		/* nothing */ 			   { 1 }
@@ -161,6 +175,11 @@ stmt:
 	|	CONTINUE SEMI				 	{ Continue }
 	|   datatype ID SEMI 			 	{ Local($1, $2, Noexpr) }
 	| 	datatype ID ASSIGN expr SEMI 	{ Local($1, $2, $4) }
+  | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET SEMI                
+        {MatrixDecl(Matrix_t, $4, $6, Noexpr)} 
+  | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET ASSIGN expr SEMI                
+        {MatrixDecl(Matrix_t, $4, $6, $9)}
+
 
 expr_opt:
 		/* nothing */ { Noexpr }
@@ -169,7 +188,9 @@ expr_opt:
 expr:
 		literals		 					{ $1 }
 	| 	expr PLUS   expr 					{ Binop($1, Add,   $3) }
+	| 	expr PLUSPLUS             { Unop(Inc, $1) }
 	| 	expr MINUS  expr 					{ Binop($1, Sub,   $3) }
+	| 	expr MINUSMINUS           { Unop(Dec, $1) }
 	| 	expr TIMES  expr 					{ Binop($1, Mult,  $3) }
 	| 	expr MTIMES  expr 					{ Binop($1, Mult,  $3) }
 	| 	expr DIVIDE expr 					{ Binop($1, Div,   $3) }
@@ -201,8 +222,8 @@ bracket_args:
 
 literals:
 	  INT_LITERAL      		{ Int_Lit($1) }
-    | MATRIX_LITERAL        { Mat_Lit($1) }
-    | FLOAT_LITERAL    		{ Float_Lit($1) }
+  | LBRACKET mat_member_list RBRACKET    { Mat_Lit($2) }
+  | FLOAT_LITERAL    		{ Float_Lit($1) }
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }
 	| STRING_LITERAL   		{ String_Lit($1) }  
@@ -210,10 +231,4 @@ literals:
 	| THIS 			   		{ This }
 	| ID 			   		{ Id($1) }	
 	| NULL				    { Null }
-	| BAR array_prim BAR 	{ ArrayPrimitive($2) }
 
-/* ARRAY LITERALS */
-
-array_prim:
-		expr 					{ [$1] }
-	|	array_prim COMMA expr 	{ $3 :: $1 }

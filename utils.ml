@@ -35,8 +35,8 @@ let rec print_brackets = function
 	| 	a -> "[]" ^ print_brackets (a - 1)
 		
 let string_of_datatype = function 
-		Arraytype(p, i)	-> (string_of_primitive p) ^ (print_brackets i)
-	| 	Datatype(p)		-> (string_of_primitive p)
+		(*Arraytype(p, i)	-> (string_of_primitive p) ^ (print_brackets i)*)
+	 	Datatype(p)		-> (string_of_primitive p)
 	|  	Any 			-> "Any"
 
 (* Print expressions *)
@@ -44,6 +44,8 @@ let string_of_datatype = function
 let string_of_op = function
 		Add			-> "+"	
 	 | 	Sub			-> "-"	
+	 | 	Inc			-> "++"	
+	 | 	Dec			-> "--"	
 	 | 	Mult		-> "*"	
 	 | 	Div			-> "/"	
 	 | 	Equal		-> "=="		
@@ -78,6 +80,7 @@ and string_of_expr = function
 	|	ObjAccess(e1, e2)		-> (string_of_expr e1) ^ "." ^ (string_of_expr e2)
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 	|	ArrayPrimitive(el)		-> "|" ^ (string_of_array_primitive el) ^ "|"
+	|	Mat_Lit(el)		-> "[" ^ (string_of_array_primitive el) ^ "]"
 	|  	Unop(op, e)				-> (string_of_op op) ^ "(" ^ string_of_expr e ^ ")"
 	|	Null					-> "null"
 	|   ArrayCreate(d, el)  	-> "new " ^ string_of_datatype d ^ string_of_bracket_expr el
@@ -156,6 +159,7 @@ let rec string_of_stmt indent =
 		|  	Break					-> indent_string ^ "break;\n"
 		|  	Continue				-> indent_string ^ "continue;\n"
 		|   Local(d, s, e) 			-> indent_string ^ string_of_datatype d ^ " " ^ s ^ string_of_local_expr e ^ ";\n"
+    |   MatrixDecl(m, r, c, e) -> indent_string ^ "mat["^string_of_int r^","^string_of_int c^"]"^ string_of_local_expr e^";\n"
 	in get_stmt_string
 
 (*let string_of_local_sexpr = function*)
@@ -430,7 +434,9 @@ let string_of_token = function
 	| 	SEMI				-> "SEMI"	
 	| 	COMMA				-> "COMMA"	
 	| 	PLUS				-> "PLUS"	
+	| 	PLUSPLUS				-> "PLUSPLUS"	
 	| 	MINUS				-> "MINUS"	
+	| 	MINUSMINUS				-> "MINUSMINUS"	
 	| 	TIMES				-> "TIMES"	
 	| 	MTIMES				-> "MTIMES"	
 	| 	DIVIDE				-> "DIVIDE"	
@@ -490,7 +496,9 @@ let string_of_token_no_id = function
 	| 	SEMI				-> "SEMI"	
 	| 	COMMA				-> "COMMA"	
 	| 	PLUS				-> "PLUS"	
+	| 	PLUSPLUS				-> "PLUSPLUS"	
 	| 	MINUS				-> "MINUS"	
+	| 	MINUSMINUS				-> "MINUSMINUS"	
 	| 	TIMES				-> "TIMES"	
 	| 	MTIMES				-> "MTIMES"	
 	| 	DIVIDE				-> "DIVIDE"	
@@ -516,7 +524,7 @@ let string_of_token_no_id = function
 	| 	WHILE				-> "WHILE"	
 	| 	RETURN				-> "RETURN"	
 	| 	INT					-> "INT"
-    | 	MATRIX				-> "MAT"
+    | 	MATRIX				-> "MATRIX"
 	| 	FLOAT				-> "FLOAT"	
 	| 	BOOL				-> "BOOL"	
 	| 	MATRIX				-> "MATRIX"	
