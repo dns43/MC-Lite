@@ -87,6 +87,8 @@ whitespace { token lexbuf }
 
 | int as lxm          { INT_LITERAL(int_of_string lxm) }
 | float as lxm        { FLOAT_LITERAL(float_of_string lxm) }
-| string              { STRING_LITERAL(unescape s) }
 | eof                 { EOF }
 
+and comment = parse
+	return  { incr lineno; token lexbuf }
+	|   _       { comment lexbuf }

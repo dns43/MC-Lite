@@ -22,7 +22,7 @@ let () =
 				"File \"" ^ !Processor.filename ^ "\", " ^
 				"line " ^ string_of_int !Processor.line_number ^ ", " ^
 				"character " ^ string_of_int !Processor.char_num ^ ", " ^
-				"Syntax Error, token " ^ Utils.string_of_token !Processor.last_token ^ "\n" 
+				"Syntax Error, token " ^ Utils.string_of_token_no_id !Processor.last_token ^ "\n" 
 			)
 
 

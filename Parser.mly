@@ -149,6 +149,7 @@ matrix_type:
 datatype:
 		  type_tag    { Datatype($1) }
 
+
 brackets:
 		/* nothing */ 			   { 1 }
 	| 	brackets RBRACKET LBRACKET { $1 + 1 }
@@ -176,9 +177,9 @@ stmt:
 	|   datatype ID SEMI 			 	{ Local($1, $2, Noexpr) }
 	| 	datatype ID ASSIGN expr SEMI 	{ Local($1, $2, $4) }
   | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET SEMI                
-        {MatrixDecl(Matrix_t, $4, $6, Noexpr)} 
+        {MatrixDecl(Matrix_t, $2, $4, $6, Noexpr)} 
   | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET ASSIGN expr SEMI                
-        {MatrixDecl(Matrix_t, $4, $6, $9)}
+        {MatrixDecl(Matrix_t, $2, $4, $6, $9)}
 
 
 expr_opt:
@@ -192,9 +193,9 @@ expr:
 	| 	expr MINUS  expr 					{ Binop($1, Sub,   $3) }
 	| 	expr MINUSMINUS           { Unop(Dec, $1) }
 	| 	expr TIMES  expr 					{ Binop($1, Mult,  $3) }
-	| 	expr MTIMES  expr 					{ Binop($1, Mult,  $3) }
+	| 	expr MTIMES  expr 					{ Binop($1, MMult,  $3) }
 	| 	expr DIVIDE expr 					{ Binop($1, Div,   $3) }
-	| 	expr MDIVIDE expr 					{ Binop($1, Div,   $3) }
+	| 	expr MDIVIDE expr 					{ Binop($1, MDiv,   $3) }
 	| 	expr TRANSPOSE expr					{ Binop($1, Div,   $3) }
 	| 	expr EQ     expr 					{ Binop($1, Equal, $3) }
 	| 	expr NEQ    expr 					{ Binop($1, Neq,   $3) }
@@ -227,8 +228,5 @@ literals:
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }
 	| STRING_LITERAL   		{ String_Lit($1) }  
-	| CHAR_LITERAL			{ Char_Lit($1) }
-	| THIS 			   		{ This }
 	| ID 			   		{ Id($1) }	
 	| NULL				    { Null }
-

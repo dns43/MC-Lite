@@ -17,6 +17,11 @@ m = [1, 2, 3, 4];
 // declar 2x2 matrix and assign values in one step
 // note ints will be cast to floats when assigned to matrix
 mat m2[2, 2] = [1,2,3,4];
+mat m3[2, 2] = [6,7,8,9];
+mat m4[2, 2] = m2 * m3;
+
+// element wise multiplication:
+m4 = m2 .* m3;
 
 
 // sample function declaration
@@ -24,8 +29,15 @@ mat m2[2, 2] = [1,2,3,4];
 int my_function (int x, float y) {
 
   // z is scoped within {}
-  int z = x + x;
-  return 0;
+  int z = 0;
+  int i = 0;
+
+  // while loop
+  while (i < 10) {
+    z = z + i;
+    i++;
+  }
+  return z;
 }
 
 // function call
