@@ -20,6 +20,9 @@ mat m2[2, 2] = [1,2,3,4];
 mat m3[2, 2] = [6,7,8,9];
 mat m4[2, 2] = m2 * m3;
 
+// element wise multiplication:
+m4 = m2 .* m3;
+
 
 // sample function declaration
 // note local variable declarations overide enclosing scope

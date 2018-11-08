@@ -208,9 +208,9 @@ expr:
 	| 	expr MINUS  expr 					{ Binop($1, Sub,   $3) }
 	| 	expr MINUSMINUS           { Unop(Dec, $1) }
 	| 	expr TIMES  expr 					{ Binop($1, Mult,  $3) }
-	| 	expr MTIMES  expr 					{ Binop($1, Mult,  $3) }
+	| 	expr MTIMES  expr 					{ Binop($1, MMult,  $3) }
 	| 	expr DIVIDE expr 					{ Binop($1, Div,   $3) }
-	| 	expr MDIVIDE expr 					{ Binop($1, Div,   $3) }
+	| 	expr MDIVIDE expr 					{ Binop($1, MDiv,   $3) }
 	| 	expr TRANSPOSE expr					{ Binop($1, Div,   $3) }
 	| 	expr EQ     expr 					{ Binop($1, Equal, $3) }
 	| 	expr NEQ    expr 					{ Binop($1, Neq,   $3) }

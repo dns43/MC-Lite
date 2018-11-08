@@ -48,7 +48,9 @@ let string_of_op = function
 	 | 	Inc			-> "++"	
 	 | 	Dec			-> "--"	
 	 | 	Mult		-> "*"	
+	 | 	MMult		-> ".*"	
 	 | 	Div			-> "/"	
+	 | 	MDiv			-> "./"	
 	 | 	Equal		-> "=="		
 	 | 	Neq			-> "!="	
 	 | 	Less		-> "<"	
@@ -426,7 +428,7 @@ let print_tree = function
 	(*])]*)
 
 (* Print tokens *)
-
+(*
 let string_of_token = function
 		LPAREN				-> "LPAREN"	
 	| 	RPAREN				-> "RPAREN"	
@@ -439,7 +441,9 @@ let string_of_token = function
 	| 	MINUS				-> "MINUS"	
 	| 	MINUSMINUS				-> "MINUSMINUS"	
 	| 	TIMES				-> "TIMES"	
+	| 	MTIMES				-> "MTIMES"	
 	| 	DIVIDE				-> "DIVIDE"	
+	| 	MDIVIDE				-> "MDIVIDE"	
 	| 	ASSIGN				-> "ASSIGN"	
 	| 	EQ					-> "EQ"
 	| 	NEQ					-> "NEQ"
@@ -484,6 +488,7 @@ let string_of_token = function
 	| 	ID(s)				-> "ID(" ^ s ^ ")"
 	| 	DELETE 				-> "DELETE"
 	|  	EOF					-> "EOF"
+  *)
 
 let string_of_token_no_id = function
 		LPAREN				-> "LPAREN"	
@@ -497,7 +502,9 @@ let string_of_token_no_id = function
 	| 	MINUS				-> "MINUS"	
 	| 	MINUSMINUS				-> "MINUSMINUS"	
 	| 	TIMES				-> "TIMES"	
+	| 	MTIMES				-> "MTIMES"	
 	| 	DIVIDE				-> "DIVIDE"	
+	| 	MDIVIDE				-> "MDIVIDE"	
 	| 	ASSIGN				-> "ASSIGN"	
 	| 	EQ					-> "EQ"
 	| 	NEQ					-> "NEQ"
@@ -544,14 +551,14 @@ let string_of_token_no_id = function
 	| 	DELETE 				-> "DELETE"
 	|  	EOF					-> "EOF"
 
-let token_list_to_string_endl token_list =
-  let rec helper last_line_number = function
-		(token, curr)::tail ->
-		let line = curr.lineno in 
-		(if line != last_line_number then "\n" ^ string_of_int line ^ ". " else " ") ^
-		string_of_token token ^ helper line tail
-	| 	[] -> "\n"
-  in helper 0 token_list
+(*let token_list_to_string_endl token_list =*)
+  (*let rec helper last_line_number = function*)
+		(*(token, curr)::tail ->*)
+		(*let line = curr.lineno in *)
+		(*(if line != last_line_number then "\n" ^ string_of_int line ^ ". " else " ") ^*)
+		(*string_of_token token ^ helper line tail*)
+	(*| 	[] -> "\n"*)
+  (*in helper 0 token_list*)
 
 let token_list_to_string token_list =
   let rec helper = function
