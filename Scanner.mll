@@ -48,7 +48,9 @@ whitespace { token lexbuf }
 | "./"     { MDIVIDE }
 | ".~"     { TRANSPOSE }
 | '+'      { PLUS }
+| "++"      { PLUSPLUS }
 | '-'      { MINUS }
+| "--"      { MINUSMINUS }
 | '*'      { TIMES }
 | '/'      { DIVIDE }
 | '='      { ASSIGN }

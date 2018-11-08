@@ -3,7 +3,7 @@
 %token CLASS EXTENDS CONSTRUCTOR INCLUDE DOT THIS PRIVATE PUBLIC
 %token MATRIX INT FLOAT BOOL CHAR VOID NULL TRUE FALSE
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACKET RBRACKET COMMA
-%token AND NOT OR PLUS MINUS TIMES MTIMES MDIVIDE DIVIDE ASSIGN TRANSPOSE
+%token AND NOT OR PLUS  PLUSPLUS MINUS MINUSMINUS TIMES MTIMES MDIVIDE DIVIDE ASSIGN TRANSPOSE
 %token EQ NEQ LT LEQ GT GEQ BAR
 %token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE 
 /* %token MATRIX_LITERAL */
@@ -21,6 +21,7 @@
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
+%left PLUSPLUS MINUSMINUS
 %left TIMES MTIMES DIVIDE MDIVIDE
 $right TRANSPOSE
 %right NOT
@@ -203,7 +204,9 @@ expr_opt:
 expr:
 		literals		 					{ $1 }
 	| 	expr PLUS   expr 					{ Binop($1, Add,   $3) }
+	| 	expr PLUSPLUS             { Unop(Inc, $1) }
 	| 	expr MINUS  expr 					{ Binop($1, Sub,   $3) }
+	| 	expr MINUSMINUS           { Unop(Dec, $1) }
 	| 	expr TIMES  expr 					{ Binop($1, Mult,  $3) }
 	| 	expr MTIMES  expr 					{ Binop($1, Mult,  $3) }
 	| 	expr DIVIDE expr 					{ Binop($1, Div,   $3) }
