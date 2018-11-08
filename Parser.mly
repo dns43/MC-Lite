@@ -6,7 +6,6 @@
 %token AND NOT OR PLUS  PLUSPLUS MINUS MINUSMINUS TIMES MTIMES MDIVIDE DIVIDE ASSIGN TRANSPOSE
 %token EQ NEQ LT LEQ GT GEQ BAR
 %token RETURN IF ELSE FOR WHILE BREAK CONTINUE NEW DELETE 
-/* %token MATRIX_LITERAL */
 %token <int> INT_LITERAL
 %token <float> FLOAT_LITERAL
 %token <string> STRING_LITERAL
@@ -139,21 +138,9 @@ primitive:
 		INT 		{ Int_t }
 	| 	FLOAT		{ Float_t } 
 	| 	BOOL 		{ Bool_t }
-	/*| 	MATRIX    	{ Matrix_t } matrix needs special handling*/
 
 type_tag:
 		primitive { $1 }
-/*
-array_type:
-	type_tag LBRACKET brackets RBRACKET { Arraytype($1, $3) }
-  */
-/*
-matrix_type:
-  MATRIX LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET
-  {
-    Matrixtype($1, $3, $5)
-  }
-  */
 
 matrix_type:
   MATRIX {Matrix_t}
@@ -161,9 +148,7 @@ matrix_type:
 
 datatype:
 		  type_tag    { Datatype($1) }
-    /*| matrix_type { $1 }*/
 
-	/*| 	array_type { $1 }*/
 
 brackets:
 		/* nothing */ 			   { 1 }
@@ -243,15 +228,5 @@ literals:
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }
 	| STRING_LITERAL   		{ String_Lit($1) }  
-	| CHAR_LITERAL			{ Char_Lit($1) }
-	| THIS 			   		{ This }
 	| ID 			   		{ Id($1) }	
 	| NULL				    { Null }
-	/*| BAR array_prim BAR 	{ ArrayPrimitive($2) }*/
-
-/* ARRAY LITERALS */
-/*
-array_prim:
-		expr 					{ [$1] }
-	|	array_prim COMMA expr 	{ $3 :: $1 }
-  */

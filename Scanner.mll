@@ -87,17 +87,8 @@ whitespace { token lexbuf }
 
 | int as lxm          { INT_LITERAL(int_of_string lxm) }
 | float as lxm        { FLOAT_LITERAL(float_of_string lxm) }
-(*| matrix as lxm       { MATRIX_LITERAL(int_of_string lxm) }*)
-(*| char as lxm         { CHAR_LITERAL( String.get lxm 1 ) }
-| escape_char as lxm{ CHAR_LITERAL( String.get (unescape lxm) 1) }
-| string              { STRING_LITERAL(unescape s) }*)
 | eof                 { EOF }
 
-(*| '"'             { raise (Exceptions.UnmatchedQuotation(!lineno)) }
-| _ as illegal  { raise (Exceptions.IllegalCharacter(!filename, illegal, !lineno)) }
-*)
 and comment = parse
 	return  { incr lineno; token lexbuf }
-	(*|   "*/"    { decr depth; if !depth > 0 then comment lexbuf else token lexbuf }*)
-	(*|   "/*"    { incr depth; comment lexbuf }*)
 	|   _       { comment lexbuf }

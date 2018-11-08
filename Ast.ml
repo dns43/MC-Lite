@@ -1,6 +1,5 @@
 type op = Add | Sub | Mult | MMult | Div | MDiv | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod | Inc | Dec 
-type primitive = Int_t | Float_t | Void_t | Bool_t | Matrix_t | ConstructorType | Null_t
-(*/*type datatype = Arraytype of primitive * int | Datatype of primitive | Any*/*)
+type primitive = Int_t | Float_t | Void_t | Bool_t | Matrix_t 
 type datatype =  Datatype of primitive | Any
 
 type extends = NoParent | Parent of string
@@ -13,8 +12,6 @@ type expr =
 	| 	Float_Lit of float
 	| 	Mat_Lit of expr list
   | 	String_Lit of string
-  | 	Char_Lit of char
-  | 	This
 	| 	Id of string
 	| 	Binop of expr * op * expr
 	| 	Assign of expr * expr
