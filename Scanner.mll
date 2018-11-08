@@ -32,7 +32,7 @@ let return = '\n'
 rule token = parse
 whitespace { token lexbuf }
 | return   { incr lineno; token lexbuf}
-| "(*"       { incr depth; comment lexbuf }
+| "//"       { incr depth; comment lexbuf }
 
 | '('      { LPAREN }
 | ')'      { RPAREN }
