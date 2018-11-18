@@ -47,8 +47,6 @@ type fdecl = {
 	returnType : datatype;
 	formals : formal list;
 	body : stmt list;
-	overrides : bool;
-	root_cname : string option;
 }
 
 type top_stmt =
