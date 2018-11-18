@@ -1,5 +1,5 @@
 type op = Add | Sub | Mult | MMult | Div | MDiv | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod | Inc | Dec 
-type primitive = Int_t | Float_t | Void_t | Bool_t | Matrix_t 
+type primitive = Int_t | Float_t | Bool_t | Matrix_t 
 type datatype =  Datatype of primitive | Any
 
 (*type extends = NoParent | Parent of string*)

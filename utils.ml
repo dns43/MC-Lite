@@ -13,7 +13,6 @@ let string_of_primitive = function
 		Int_t 						-> "int"
     |	Matrix_t 					-> "mat"
 	| 	Float_t 					-> "float"
-	| 	Void_t						-> "void"
 	| 	Bool_t 						-> "bool"
 
 let rec print_brackets = function
