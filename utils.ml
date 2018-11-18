@@ -193,8 +193,8 @@ let rec map_stmt_to_json = function
 	|  	Continue				-> `String "continue"
 	|   Local(d, s, e) 			-> `Assoc [("local", `Assoc [("datatype", `String (string_of_datatype d)); ("name", `String s); ("val", map_expr_to_json e)])]
 
-let map_method_to_json methods = 
-	function fdecl -> 
+let map_methods_to_json methods = 
+	`List (List.map (fun (fdecl:Ast.fdecl) -> 
 		`Assoc [
 			("name", `String (fdecl.fname));
 			(*("name", `String (string_of_fname fdecl.fname));*)
@@ -202,12 +202,11 @@ let map_method_to_json methods =
 			("returnType", `String (string_of_datatype fdecl.returnType));
 			("formals", map_formals_to_json fdecl.formals);
 			("body", `List (List.map (map_stmt_to_json) fdecl.body));
-		]
-	(*`List (List.map (fun (fdecl:Ast.fdecl) -> *)
+		]) methods)
 
 let map_top_stmt_to_json = function
       Function(fdecl) -> `Assoc [("fdecl", `String (string_of_func_decl fdecl))]
-  |   Statement(stmt)     -> `Assoc [("stmt", map_stmt_to_json stmt)]
+  |   Statement(stmt)     -> `Assoc [("stmt", `String ((string_of_stmt 0) stmt))]
 
 
 
@@ -225,7 +224,7 @@ let print_tree = function
 		)]
 
 let string_of_token_no_id = function
-	  	LPAREN				-> "LPAREN"	
+		LPAREN				-> "LPAREN"	
 	| 	RPAREN				-> "RPAREN"	
 	| 	LBRACE				-> "LBRACE"	
 	| 	RBRACE				-> "RBRACE"	
@@ -262,26 +261,25 @@ let string_of_token_no_id = function
     | 	MATRIX				-> "MATRIX"
 	| 	FLOAT				-> "FLOAT"	
 	| 	BOOL				-> "BOOL"	
-	| 	MATRIX				-> "MATRIX"	
-	(*| 	CHAR				-> "CHAR"	*)
+	| 	CHAR				-> "CHAR"	
 	| 	VOID				-> "VOID"	
 	| 	NULL				-> "NULL"	
 	| 	TRUE				-> "TRUE"	
 	| 	FALSE				-> "FALSE"	
-	(*| 	CLASS				-> "CLASS"	*)
-	(*| 	CONSTRUCTOR			-> "CONSTRUCTOR"		*)
-	(*| 	PUBLIC				-> "PUBLIC"	*)
-	(*| 	PRIVATE				-> "PRIVATE"	*)
-	(*| 	EXTENDS				-> "EXTENDS"	*)
+	| 	CLASS				-> "CLASS"	
+	| 	CONSTRUCTOR			-> "CONSTRUCTOR"		
+	| 	PUBLIC				-> "PUBLIC"	
+	| 	PRIVATE				-> "PRIVATE"	
+	| 	EXTENDS				-> "EXTENDS"	
 	| 	INCLUDE				-> "INCLUDE"	
-	(*| 	THIS				-> "THIS"	*)
+	| 	THIS				-> "THIS"	
 	| 	BREAK				-> "BREAK"	
 	| 	CONTINUE			-> "CONTINUE"	
-	(*|   NEW 				-> "NEW"		*)
+	|   NEW 				-> "NEW"		
 	| 	INT_LITERAL(i)		-> "INT_LITERAL"
 	| 	FLOAT_LITERAL(f)	-> "FLOAT_LITERAL"
+	| 	CHAR_LITERAL(c)		-> "CHAR_LITERAL"
 	| 	STRING_LITERAL(s)	-> "STRING_LITERAL"
-	| 	MATRIX_LITERAL	-> "MATRIX_LITERAL"
 	| 	ID(s)				-> "ID"
 	| 	DELETE 				-> "DELETE"
 	|  	EOF					-> "EOF"
