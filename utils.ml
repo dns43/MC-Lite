@@ -1,6 +1,7 @@
 
 (* Pretty Printer *)
 open Ast
+open Sast
 open Parser
 open Processor
 
@@ -289,4 +290,9 @@ let token_list_to_string token_list =
 		string_of_token_no_id token ^ " " ^ helper tail
 	| 	[] -> "\n"
   in helper token_list
+
+
+let check_sprogram = function
+	SProgram(includes, stop_stmts) -> ()
+
 

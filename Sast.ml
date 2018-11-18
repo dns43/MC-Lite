@@ -5,50 +5,50 @@ open Ast
 
 type sexpr = primitive * sx
 and sx =
-		Int_Lit of int
-	| 	Boolean_Lit of bool
-	| 	Float_Lit of float
-	| 	Mat_Lit of sexpr list
-  | 	String_Lit of string
-	| 	Id of string
-	| 	Binop of sexpr * op * sexpr
-	| 	Assign of sexpr * sexpr
-	| 	Noexpr
-  | 	ArrayCreate of datatype * sexpr list
-  | 	ArrayAccess of sexpr * sexpr list
-  | 	ObjAccess of sexpr * sexpr
-	| 	Call of string * sexpr list  
-  |   ObjectCreate of string * sexpr list
-  | 	ArrayPrimitive of sexpr list
-	|  	Unop of op * sexpr
-	| 	Null
-  | 	Delete of sexpr
+		SInt_Lit of int
+	| 	SBoolean_Lit of bool
+	| 	SFloat_Lit of float
+	| 	SMat_Lit of sexpr list
+  | 	SString_Lit of string
+	| 	SId of string
+	| 	SBinop of sexpr * op * sexpr
+	| 	SAssign of sexpr * sexpr
+	| 	SNoexpr
+  | 	SArrayCreate of datatype * sexpr list
+  | 	SArrayAccess of sexpr * sexpr list
+  | 	SObjAccess of sexpr * sexpr
+	| 	SCall of string * sexpr list  
+  |   SObjectCreate of string * sexpr list
+  | 	SArrayPrimitive of sexpr list
+	|  	SUnop of op * sexpr
+	| 	SNull
+  | 	SDelete of sexpr
 
 type sstmt =
-		Block of sstmt list
-	| 	Expr of sexpr
-	| 	Return of sexpr
-	| 	If of sexpr * sstmt * sstmt
-	| 	For of sexpr * sexpr * sexpr * sstmt
-	| 	While of sexpr * sstmt
-	|  	Break
-	|   Continue
-  |   Local of datatype * string * sexpr
-  |   MatrixDecl of primitive * string * int * int * sexpr
+		SBlock of sstmt list
+	| 	SExpr of sexpr
+	| 	SReturn of sexpr
+	| 	SIf of sexpr * sstmt * sstmt
+	| 	SFor of sexpr * sexpr * sexpr * sstmt
+	| 	SWhile of sexpr * sstmt
+	|  	SBreak
+	|   SContinue
+  |   SLocal of datatype * string * sexpr
+  |   SMatrixDecl of primitive * string * int * int * sexpr
 
 type sfdecl = {
 	sfname : string;
-	returnType : datatype;
-	formals : formal list;
-	body : sstmt list;
+	sreturnType : datatype;
+	sformals : formal list;
+	sbody : sstmt list;
 }
 
 
 type stop_stmt =
-    Function of sfdecl
-  | Statement of sstmt 
+    SFunction of sfdecl
+  | SStatement of sstmt 
 
 
-type sprogram = Program of include_stmt list * stop_stmt list
+type sprogram = SProgram of include_stmt list * stop_stmt list
 
 

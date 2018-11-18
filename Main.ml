@@ -14,7 +14,9 @@ let () =
         let program = fun () -> Processor.parser filename (token_list ()) in
         print_string( "filename: " ^ filename ^ "\n" );
         print_string( Utils.token_list_to_string (token_list()) );
-            print_string( pretty_to_string(Utils.print_tree (program()) ) );
+        print_string( pretty_to_string(Utils.print_tree (program()) ) );
+        Utils.check_sprogram (Semant.check_program (program()));
+
   with
 	 	Parsing.Parse_error ->
 			print_string
