@@ -130,7 +130,8 @@ let string_of_formal_name = function
 	| 	_ -> ""
 
 let string_of_func_decl fdecl =
-	 (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
+	 (string_of_datatype fdecl.returnType) ^ " " ^ fdecl.fname ^ " " ^ 
+	 (*(string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ *)
 	(* Formals *)
 	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
 		String.concat "" (List.map (string_of_stmt 2) fdecl.body) ^
@@ -195,7 +196,8 @@ let rec map_stmt_to_json = function
 let map_methods_to_json methods = 
 	`List (List.map (fun (fdecl:Ast.fdecl) -> 
 		`Assoc [
-			("name", `String (string_of_fname fdecl.fname));
+			("name", `String (fdecl.fname));
+			(*("name", `String (string_of_fname fdecl.fname));*)
 			(*("scope", `String (string_of_scope fdecl.scope));*)
 			("returnType", `String (string_of_datatype fdecl.returnType));
 			("formals", map_formals_to_json fdecl.formals);
