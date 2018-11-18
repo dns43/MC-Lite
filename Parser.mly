@@ -89,21 +89,19 @@ mat_lit:
 /******************
  METHODS
 ******************/
-
+/*
 fname:
 	ID { $1 }
-
+*/
 
 fdecl:
-	datatype fname LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE 
+	datatype ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE 
 	{ 
 		{
-			fname = FName($2);
+      fname = $2;
 			returnType = $1;
 			formals = $4;
 			body = List.rev $7;
-			overrides = false;
-            root_cname = None;
 		} 
 	}
 

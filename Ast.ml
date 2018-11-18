@@ -1,8 +1,8 @@
 type op = Add | Sub | Mult | MMult | Div | MDiv | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod | Inc | Dec 
-type primitive = Int_t | Float_t | Void_t | Bool_t | Matrix_t 
+type primitive = Int_t | Float_t | Bool_t | Matrix_t 
 type datatype =  Datatype of primitive | Any
 
-type extends = NoParent | Parent of string
+(*type extends = NoParent | Parent of string*)
 type fname = Constructor | FName of string
 type formal = Formal of datatype * string | Many of datatype
 
@@ -43,12 +43,10 @@ type include_stmt = Include of string
 
 
 type fdecl = {
-	fname : fname;
+	fname : string;
 	returnType : datatype;
 	formals : formal list;
 	body : stmt list;
-	overrides : bool;
-	root_cname : string option;
 }
 
 type top_stmt =

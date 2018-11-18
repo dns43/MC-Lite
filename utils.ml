@@ -1,6 +1,7 @@
 
 (* Pretty Printer *)
 open Ast
+open Sast
 open Parser
 open Processor
 
@@ -13,7 +14,6 @@ let string_of_primitive = function
 		Int_t 						-> "int"
     |	Matrix_t 					-> "mat"
 	| 	Float_t 					-> "float"
-	| 	Void_t						-> "void"
 	| 	Bool_t 						-> "bool"
 
 let rec print_brackets = function
@@ -130,7 +130,8 @@ let string_of_formal_name = function
 	| 	_ -> ""
 
 let string_of_func_decl fdecl =
-	 (string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ 
+	 (string_of_datatype fdecl.returnType) ^ " " ^ fdecl.fname ^ " " ^ 
+	 (*(string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ *)
 	(* Formals *)
 	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
 		String.concat "" (List.map (string_of_stmt 2) fdecl.body) ^
@@ -195,7 +196,8 @@ let rec map_stmt_to_json = function
 let map_method_to_json methods = 
 	function fdecl -> 
 		`Assoc [
-			("name", `String (string_of_fname fdecl.fname));
+			("name", `String (fdecl.fname));
+			(*("name", `String (string_of_fname fdecl.fname));*)
 			(*("scope", `String (string_of_scope fdecl.scope));*)
 			("returnType", `String (string_of_datatype fdecl.returnType));
 			("formals", map_formals_to_json fdecl.formals);
@@ -290,4 +292,9 @@ let token_list_to_string token_list =
 		string_of_token_no_id token ^ " " ^ helper tail
 	| 	[] -> "\n"
   in helper token_list
+
+
+let check_sprogram = function
+	SProgram(includes, stop_stmts) -> ()
+
 
