@@ -118,7 +118,7 @@ formal_list:
 	| 	formal_list COMMA formal { $3 :: $1 }
 
 formal:
-	datatype ID { Formal($1, $2) }
+	primitive ID { ($1, $2) }
 
 actuals_opt:
 		/* nothing */ { [] }
@@ -145,7 +145,7 @@ matrix_type:
 
 
 datatype:
-		  type_tag    { Datatype($1) }
+		  type_tag    { ($1) }
 
 
 brackets:
@@ -172,8 +172,8 @@ stmt:
 	| 	WHILE LPAREN expr RPAREN stmt 	{ While($3, $5) }
 	|	BREAK SEMI					 	{ Break }
 	|	CONTINUE SEMI				 	{ Continue }
-	|   datatype ID SEMI 			 	{ Local($1, $2, Noexpr) }
-	| 	datatype ID ASSIGN expr SEMI 	{ Local($1, $2, $4) }
+	|   primitive ID SEMI 			 	{ Local($1, $2, Noexpr) }
+	| 	primitive ID ASSIGN expr SEMI 	{ Local($1, $2, $4) }
   | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET SEMI                
         {MatrixDecl(Matrix_t, $2, $4, $6, Noexpr)} 
   | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET ASSIGN expr SEMI                

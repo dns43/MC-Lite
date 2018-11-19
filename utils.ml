@@ -20,9 +20,9 @@ let rec print_brackets = function
 		1 -> "[]"
 	| 	a -> "[]" ^ print_brackets (a - 1)
 		
-let string_of_datatype = function 
-	 	Datatype(p)		-> (string_of_primitive p)
-	|  	Any 			-> "Any"
+(*let string_of_primitive = function *)
+		 (*(p)		-> (string_of_primitive p)*)
+	(*|  	Any 			-> "Any"*)
 
 (* Print expressions *)
 
@@ -109,27 +109,26 @@ let rec string_of_stmt indent =
 
 		|  	Break					-> indent_string ^ "break;\n"
 		|  	Continue				-> indent_string ^ "continue;\n"
-		|   Local(d, s, e) 			-> indent_string ^ string_of_datatype d ^ " " ^ s ^ string_of_local_expr e ^ ";\n"
+		|   Local(d, s, e) 			-> indent_string ^ string_of_primitive d ^ " " ^ s ^ string_of_local_expr e ^ ";\n"
     |   MatrixDecl(m, n, r, c, e) -> indent_string ^ "mat "^n^"["^string_of_int r^","^string_of_int c^"]"^ string_of_local_expr e^";\n"
 	in get_stmt_string
 
 
 
 let string_of_fname = function 
-		Constructor -> "constructor"
-	|	FName(s)	-> s
+	FName(s)	-> s
 
 let string_of_formal = function
-		Formal(d, s) -> (string_of_datatype d) ^ " " ^ s
-	|  	_ 			 -> ""
+    (d, s) -> (string_of_primitive d) ^ " " ^ s
+   | 	_ 			 -> ""
 
 let string_of_formal_name = function
 		Formal(_, s) -> s
 	| 	_ -> ""
 
 let string_of_func_decl fdecl =
-	 (string_of_datatype fdecl.returnType) ^ " " ^ fdecl.fname ^ " " ^ 
-	 (*(string_of_datatype fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ *)
+	 (string_of_primitive fdecl.returnType) ^ " " ^ fdecl.fname ^ " " ^ 
+	 (*(string_of_primitive fdecl.returnType) ^ " " ^ (string_of_fname fdecl.fname) ^ " " ^ *)
 	(* Formals *)
 	"(" ^ String.concat "," (List.map string_of_formal fdecl.formals) ^ ") {\n" ^
 		String.concat "" (List.map (string_of_stmt 2) fdecl.body) ^
@@ -150,19 +149,18 @@ let string_of_program = function
 let includes_tree includes = 
 	`List (List.map (function Include s -> `String s) includes)
 
-let map_fields_to_json fields = 
-	`List (List.map (function Field((*scope,*) datatype, s) -> 
-		`Assoc [
-			("name", `String s);
-			("datatype", `String (string_of_datatype datatype));
-		]) fields)
+(*let map_fields_to_json fields = *)
+	(*`List (List.map (function Field((*scope,*) datatype, s) -> *)
+		(*`Assoc [*)
+			(*("name", `String s);*)
+			(*("datatype", `String (string_of_primitive datatype));*)
+		(*]) fields)*)
 
 let map_formals_to_json formals = 
-	`List (List.map (function Formal(d, s) -> `Assoc [
+	`List (List.map (function(d, s) -> `Assoc [
 													("name", `String s);
-													("datatype", `String (string_of_datatype d));
+													("type", `String (string_of_primitive d));
 												]
-							  | Many d -> `Assoc [("Many", `String (string_of_datatype d));]
 		) formals)
 
 let rec map_expr_to_json = function 
@@ -185,7 +183,7 @@ let rec map_stmt_to_json = function
 	| 	While(e, s) 			-> `Assoc [("while", `Assoc [("cond", map_expr_to_json e); ("body", map_stmt_to_json s)])]
 	|  	Break					-> `String "break"
 	|  	Continue				-> `String "continue"
-	|   Local(d, s, e) 			-> `Assoc [("local", `Assoc [("datatype", `String (string_of_datatype d)); ("name", `String s); ("val", map_expr_to_json e)])]
+	|   Local(d, s, e) 			-> `Assoc [("local", `Assoc [("datatype", `String (string_of_primitive d)); ("name", `String s); ("val", map_expr_to_json e)])]
 
 let map_methods_to_json methods = 
 	`List (List.map (fun (fdecl:Ast.fdecl) -> 
@@ -193,7 +191,7 @@ let map_methods_to_json methods =
 			("name", `String (fdecl.fname));
 			(*("name", `String (string_of_fname fdecl.fname));*)
 			(*("scope", `String (string_of_scope fdecl.scope));*)
-			("returnType", `String (string_of_datatype fdecl.returnType));
+			("returnType", `String (string_of_primitive fdecl.returnType));
 			("formals", map_formals_to_json fdecl.formals);
 			("body", `List (List.map (map_stmt_to_json) fdecl.body));
 		]) methods)

@@ -22,12 +22,19 @@ let check_program = function
 
     (*check_dups (List.sort (fun (_,a) (_,b) -> compare a b) top_stmts);*)
 
-    let symbols = StringMap.empty
+    let symbols = StringMap.empty and function_decls = StringMap.empty
     in
 
     let check_assign lvaluet rvaluet err =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in   
+
+    let function_data s = 
+      try StringMap.find s function_decls
+      with Not_found -> raise (Failure ("unrecognized function " ^ s))
+    in
+
+
 
     
     let id_type s =
@@ -61,25 +68,24 @@ let check_program = function
               Id v -> id_type v
             | _  -> raise (Failure("Invalid assignment in " ^
                             Utils.string_of_expr e))
-          (*let lt = id_type v*)
           in
           let (lt', v') = check_expr v in
           let (rt, e') = check_expr e in
           let err = "illegal assignment " 
           in (check_assign lt rt err, SAssign((lt', v'), (rt, e')))
-      (*| 	Noexpr -> (Int_t, SNoexpr)*)
-      (*|   Call(fname, args) as call -> *)
-          (*let fd = function_data fname in*)
-          (*let param_length = List.length fd.formals in*)
-          (*if List.length args != param_length then*)
-            (*raise (Failure ("expecting different num args in func call") )*)
-          (*else let check_call (ft, _) e = *)
-            (*let (et, e') = expr e in *)
-            (*let err = "illegal argument found "*)
-            (*in (check_assign ft et err, e')  *)
-          (*in *)
-          (*let args' = List.map2 check_call fd.formals args*)
-          (*in (fd.typ, SCall(fname, args'))*)
+      | 	Noexpr -> (Int_t, SNoexpr)
+      |   Call(fname, args) as call -> 
+          let fd = function_data fname in
+          let param_length = List.length fd.formals in
+          if List.length args != param_length then
+            raise (Failure ("expecting different num args in func call") )
+          else let check_call (ft, _) e = 
+            let (et, e') = check_expr e in 
+            let err = "illegal argument found "
+            in (check_assign ft et err, e')  
+          in 
+          let args' = List.map2 check_call fd.formals args
+          in (fd.sreturnType, SCall(fname, args'))
       (*| Unop(op, e) as ex -> *)
           (*let (t, e') = expr e in*)
           (*let ty = match op with*)

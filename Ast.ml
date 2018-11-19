@@ -3,8 +3,10 @@ type primitive = Int_t | Float_t | Bool_t | Matrix_t
 type datatype =  Datatype of primitive | Any
 
 (*type extends = NoParent | Parent of string*)
-type fname = Constructor | FName of string
-type formal = Formal of datatype * string | Many of datatype
+type fname = FName of string
+(*type fname = Constructor | FName of string*)
+type formal = Formal of primitive * string
+(*type formal = Formal of datatype * string | Many of datatype*)
 
 type expr =
 		  Int_Lit of int
@@ -27,7 +29,7 @@ type stmt =
 	| 	While of expr * stmt
 	|  	Break
 	|   Continue
-  |   Local of datatype * string * expr
+  |   Local of primitive * string * expr
   |   MatrixDecl of primitive * string * int * int * expr
 
 type field = Field of (*scope **) datatype * string
@@ -36,8 +38,9 @@ type include_stmt = Include of string
 
 type fdecl = {
 	fname : string;
-	returnType : datatype;
-	formals : formal list;
+	returnType : primitive;
+	(*formals : formal list;*)
+	formals : (primitive * string) list;
 	body : stmt list;
 }
 

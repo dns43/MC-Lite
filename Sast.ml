@@ -25,13 +25,13 @@ type sstmt =
 	| 	SWhile of sexpr * sstmt
 	|  	SBreak
 	|   SContinue
-  |   SLocal of datatype * string * sexpr
+  |   SLocal of primitive * string * sexpr
   |   SMatrixDecl of primitive * string * int * int * sexpr
 
 type sfdecl = {
 	sfname : string;
-	sreturnType : datatype;
-	sformals : formal list;
+	sreturnType : primitive;
+	sformals : (primitive * string) list;
 	sbody : sstmt list;
 }
 
