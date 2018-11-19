@@ -1,6 +1,7 @@
 
 open Ast
 open Sast
+open Utils
 
 
 module StringMap = Map.Make(String)
@@ -42,27 +43,31 @@ let check_program = function
       | 	Float_Lit v -> (Float_t, SFloat_Lit v)
       | 	Mat_Lit v -> (Matrix_t, SMat_Lit (List.map check_expr v))
       | 	Id v -> (id_type v, SId v)
-      |   _ -> (Int_t, SNoexpr)
-      (*| 	Binop(e1, op, e2) ->*)
-          (*let (t1, e1') = expr e1 *)
-          (*and (t2, e2') = expr e2 in*)
-          (*let same = t1 = t2 in*)
-          (*let ty = match op with*)
-            (*Add | Sub | Mult | Div when same && t1 = Int   -> Int*)
-          (*| Add | Sub | Mult | Div when same && t1 = Float -> Float*)
-          (*| Equal | Neq | Less | Leq | Greater | Geq*)
-                     (*when same && (t1 = Int || t1 = Float) -> Bool*)
-          (*| And | Or when same && t1 = Bool -> Bool*)
-          (*| _ -> raise ( *)
-				(*Failure ("illegal binary operator "))*)
-          (*in (ty, SBinop((t1, e1'), op, (t2, e2')))*)
-      (*| 	Assign(v, e) ->*)
+      | 	Binop(e1, op, e2) ->
+          let (t1, e1') = check_expr e1 
+          and (t2, e2') = check_expr e2 in
+          let same = t1 = t2 in
+          let ty = match op with
+            Add | Sub | Mult | Div when same && t1 = Int_t   -> Int_t
+          | Add | Sub | Mult | Div when same && t1 = Float_t -> Float_t
+          | Equal | Neq | Less | Leq | Greater | Geq
+                     when same && (t1 = Int_t || t1 = Float_t) -> Bool_t
+          | And | Or when same && t1 = Bool_t -> Bool_t
+          | _ -> raise ( 
+        Failure ("illegal binary operator "))
+          in (ty, SBinop((t1, e1'), op, (t2, e2')))
+      | 	Assign(v, e) ->
+          let lt = match v with
+              Id v -> id_type v
+            | _  -> raise (Failure("Invalid assignment in " ^
+                            Utils.string_of_expr e))
           (*let lt = id_type v*)
-            (*and (rt, e') = expr e in*)
-          (*let err = "illegal assignment " *)
-          (*in (check_assign lt rt err, SAssign(var, (rt, e')))*)
-          (*in (lt, SAssign(v, (rt e')))*)
-      (*| 	Noexpr -> (Void, SNoexpr)*)
+          in
+          let (lt', v') = check_expr v in
+          let (rt, e') = check_expr e in
+          let err = "illegal assignment " 
+          in (check_assign lt rt err, SAssign((lt', v'), (rt, e')))
+      (*| 	Noexpr -> (Int_t, SNoexpr)*)
       (*|   Call(fname, args) as call -> *)
           (*let fd = function_data fname in*)
           (*let param_length = List.length fd.formals in*)
@@ -82,11 +87,14 @@ let check_program = function
           (*| Not when t = Bool -> Bool*)
           (*| _ -> raise (Failure ("illegal unary operator " ))*)
           (*in (ty, SUnop(op, (t, e')))*)
+
+      |   _ -> (Int_t, SNoexpr)
     in
     let check_bool_expr e = 
       let (t', e') = check_expr e
-      and err = "expected Boolean expression in "
-      (*and err = "expected Boolean expression in " ^ string_of_expr e*)
+      (*and err = "expected Boolean expression in "*)
+      in let err = "expected Boolean expression in " ^ Utils.string_of_expr e
+        ^ " instead " ^ string_of_primitive t'
       in if t' != Bool_t then raise (Failure err) else (t', e') 
     in
 
