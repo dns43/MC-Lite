@@ -90,6 +90,8 @@ let check_program = function
           let (t, e') = check_expr e in
           let ty = match op with
             Neg when t = Int_t || t = Float_t -> t
+          | Inc when t = Int_t -> t
+          | Dec when t = Int_t -> t
           | Not when t = Bool_t -> Bool_t
           | _ -> raise (Failure ("illegal unary operator " ))
           in (ty, SUnop(op, (t, e')))
