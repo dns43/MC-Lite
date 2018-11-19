@@ -1,4 +1,4 @@
-type op = Add | Sub | Mult | MMult | Div | MDiv | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod | Inc | Dec 
+type op = Add | Sub | Mult | MMult | Div | MDiv | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod | Inc | Dec  | Neg
 type primitive = Int_t | Float_t | Bool_t | Matrix_t 
 type datatype =  Datatype of primitive | Any
 

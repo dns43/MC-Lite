@@ -190,6 +190,7 @@ expr:
 	| 	expr PLUSPLUS             { Unop(Inc, $1) }
 	| 	expr MINUS  expr 					{ Binop($1, Sub,   $3) }
 	| 	expr MINUSMINUS           { Unop(Dec, $1) }
+	| 	MINUS expr                { Unop(Neg, $2) }
 	| 	expr TIMES  expr 					{ Binop($1, Mult,  $3) }
 	| 	expr MTIMES  expr 					{ Binop($1, MMult,  $3) }
 	| 	expr DIVIDE expr 					{ Binop($1, Div,   $3) }

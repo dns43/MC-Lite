@@ -86,13 +86,13 @@ let check_program = function
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.sreturnType, SCall(fname, args'))
-      (*| Unop(op, e) as ex -> *)
-          (*let (t, e') = expr e in*)
-          (*let ty = match op with*)
-            (*Neg when t = Int || t = Float -> t*)
-          (*| Not when t = Bool -> Bool*)
-          (*| _ -> raise (Failure ("illegal unary operator " ))*)
-          (*in (ty, SUnop(op, (t, e')))*)
+      | Unop(op, e) as ex -> 
+          let (t, e') = check_expr e in
+          let ty = match op with
+            Neg when t = Int_t || t = Float_t -> t
+          | Not when t = Bool_t -> Bool_t
+          | _ -> raise (Failure ("illegal unary operator " ))
+          in (ty, SUnop(op, (t, e')))
 
       |   _ -> (Int_t, SNoexpr)
     in
