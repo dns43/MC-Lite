@@ -95,7 +95,7 @@ fname:
 */
 
 fdecl:
-	datatype ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE 
+	primitive ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE 
 	{ 
 		{
       fname = $2;
@@ -190,7 +190,6 @@ expr:
 	| 	expr PLUSPLUS             { Unop(Inc, $1) }
 	| 	expr MINUS  expr 					{ Binop($1, Sub,   $3) }
 	| 	expr MINUSMINUS           { Unop(Dec, $1) }
-	| 	MINUS expr                { Unop(Neg, $2) }
 	| 	expr TIMES  expr 					{ Binop($1, Mult,  $3) }
 	| 	expr MTIMES  expr 					{ Binop($1, MMult,  $3) }
 	| 	expr DIVIDE expr 					{ Binop($1, Div,   $3) }
@@ -206,7 +205,7 @@ expr:
 	| 	NOT  expr 							{ Unop (Not,   $2) }
 	| 	expr OR     expr 					{ Binop($1, Or,    $3) }
 	| 	expr ASSIGN expr 					{ Assign($1, $3) }
-	|   MINUS expr 							{ Unop (Sub, $2) }
+	|   MINUS expr 							{ Unop (Neg, $2) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
 	| 	LPAREN expr RPAREN 					{ $2 }
   |   expr EOF                      {$1}

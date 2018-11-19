@@ -90,5 +90,5 @@ whitespace { token lexbuf }
 | eof                 { EOF }
 
 and comment = parse
-	return  { incr lineno; token lexbuf }
+	return  { token lexbuf }
 	|   _       { comment lexbuf }
