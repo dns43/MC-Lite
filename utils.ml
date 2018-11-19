@@ -57,7 +57,6 @@ and string_of_expr = function
 		Int_Lit(i)				-> string_of_int i
 	|	Boolean_Lit(b)			-> if b then "true" else "false"
 	|	Float_Lit(f)			-> string_of_float f
-	|	String_Lit(s)			-> "\"" ^ (String.escaped s) ^ "\""
 	|	Id(s)					-> s
 	|	Binop(e1, o, e2)		-> (string_of_expr e1) ^ " " ^ (string_of_op o) ^ " " ^ (string_of_expr e2)
 	|	Assign(e1, e2)			-> (string_of_expr e1) ^ " = " ^ (string_of_expr e2)
@@ -65,7 +64,6 @@ and string_of_expr = function
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 	|	Mat_Lit(el)		-> "[" ^ (string_of_array_primitive el) ^ "]"
 	|  	Unop(op, e)				-> (string_of_op op) ^ "(" ^ string_of_expr e ^ ")"
-	|	Null					-> "null"
 ;;
 
 
@@ -171,16 +169,12 @@ let rec map_expr_to_json = function
 		Int_Lit(i)				-> `Assoc [("int_lit", `Int i)]
 	|	Boolean_Lit(b)			-> `Assoc [("bool_lit", `Bool b)]
 	|	Float_Lit(f)			-> `Assoc [("float_lit", `Float f)]
-	|	String_Lit(s)			-> `Assoc [("string_lit", `String s)]
 	|	Id(s)					-> `Assoc [("id", `String s)]
 	|	Binop(e1, o, e2)		-> `Assoc [("binop", `Assoc [("lhs", map_expr_to_json e1); ("op", `String (string_of_op o)); ("rhs", map_expr_to_json e2)])]
 	|	Assign(e1, e2)			-> `Assoc [("assign", `Assoc [("lhs", map_expr_to_json e1); ("op", `String "="); ("rhs", map_expr_to_json e2)])]
 	|	Noexpr					-> `String "noexpr"
 	|	Call(f, el)				-> `Assoc [("call", `Assoc ([("name", `String f); ("params", `List (List.map map_expr_to_json el)); ]) )]
 	|  	Unop(op, e)				-> `Assoc [("Unop", `Assoc [("op", `String (string_of_op op)); ("operand", map_expr_to_json e)])]
-	|	Null					-> `String "null"
-	|   ObjectCreate(s, el) 	-> `Assoc [("objectcreate", `Assoc [("type", `String s); ("args", `List (List.map map_expr_to_json el))])]
-	| 	Delete(e) 				-> `Assoc [("delete", `Assoc [("expr", map_expr_to_json e)])]
 
 let rec map_stmt_to_json = function
 		Block(stmts) 			-> `Assoc [("block", `List (List.map (map_stmt_to_json) stmts))]

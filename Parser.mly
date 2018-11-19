@@ -204,14 +204,9 @@ expr:
 	| 	expr AND    expr 					{ Binop($1, And,   $3) }
 	| 	NOT  expr 							{ Unop (Not,   $2) }
 	| 	expr OR     expr 					{ Binop($1, Or,    $3) }
-	| 	expr DOT    expr 					{ ObjAccess($1, $3) }
 	| 	expr ASSIGN expr 					{ Assign($1, $3) }
-	| 	DELETE expr 						{ Delete($2) }
 	|   MINUS expr 							{ Unop (Sub, $2) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
-	| 	NEW ID LPAREN actuals_opt RPAREN 	{ ObjectCreate($2, $4) }
-	|	NEW type_tag bracket_args RBRACKET 	{ ArrayCreate(Datatype($2), List.rev $3) }
-	| 	expr bracket_args RBRACKET		 	{ ArrayAccess($1, List.rev $2) } 
 	| 	LPAREN expr RPAREN 					{ $2 }
   |   expr EOF                      {$1}
 
@@ -225,6 +220,4 @@ literals:
   | FLOAT_LITERAL    		{ Float_Lit($1) }
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }
-	| STRING_LITERAL   		{ String_Lit($1) }  
 	| ID 			   		{ Id($1) }	
-	| NULL				    { Null }

@@ -9,20 +9,12 @@ and sx =
 	| 	SBoolean_Lit of bool
 	| 	SFloat_Lit of float
 	| 	SMat_Lit of sexpr list
-  | 	SString_Lit of string
 	| 	SId of string
 	| 	SBinop of sexpr * op * sexpr
 	| 	SAssign of sexpr * sexpr
 	| 	SNoexpr
-  | 	SArrayCreate of datatype * sexpr list
-  | 	SArrayAccess of sexpr * sexpr list
-  | 	SObjAccess of sexpr * sexpr
 	| 	SCall of string * sexpr list  
-  |   SObjectCreate of string * sexpr list
-  | 	SArrayPrimitive of sexpr list
 	|  	SUnop of op * sexpr
-	| 	SNull
-  | 	SDelete of sexpr
 
 type sstmt =
 		SBlock of sstmt list

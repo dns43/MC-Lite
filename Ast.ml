@@ -7,24 +7,16 @@ type fname = Constructor | FName of string
 type formal = Formal of datatype * string | Many of datatype
 
 type expr =
-		Int_Lit of int
+		  Int_Lit of int
 	| 	Boolean_Lit of bool
 	| 	Float_Lit of float
 	| 	Mat_Lit of expr list
-  | 	String_Lit of string
 	| 	Id of string
 	| 	Binop of expr * op * expr
 	| 	Assign of expr * expr
 	| 	Noexpr
-  | 	ArrayCreate of datatype * expr list
-  | 	ArrayAccess of expr * expr list
-  | 	ObjAccess of expr * expr
 	| 	Call of string * expr list  
-  |   ObjectCreate of string * expr list
-  | 	ArrayPrimitive of expr list
 	|  	Unop of op * expr
-	| 	Null
-  | 	Delete of expr
 
 type stmt =
 		Block of stmt list
