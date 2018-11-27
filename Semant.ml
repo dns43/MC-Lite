@@ -177,10 +177,12 @@ let check_program = function
         Statement stmt -> SStatement(check_stmt m stmt)
       | Function f -> SFunction(check_fdecl m f)
 
-        
+    in
+ let caller stmt =
+     check_top_stmt globals stmt
+    in 
 
-  in 
   
   let globals =
       build_symbol_table top_stmts StringMap.empty
-  in SProgram(includes, List.map check_top_stmt globals top_stmts)
+  in SProgram(includes, List.map caller top_stmts)
