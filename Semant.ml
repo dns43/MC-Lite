@@ -173,16 +173,21 @@ let check_program = function
         }
   in
 
-    let check_top_stmt m t_stmt = match t_stmt with
-        Statement stmt -> SStatement(check_stmt m stmt)
-      | Function f -> SFunction(check_fdecl m f)
+    let check_top_stmt t_stmt = 
+        let m = globals in
+        let x = match t_stmt with
+            Statement stmt -> SStatement(check_stmt m stmt)
+        | Function f -> SFunction(check_fdecl m f)
 
     in
- let caller stmt =
+
+    let caller stmt =
      check_top_stmt globals stmt
     in 
 
   
   let globals =
       build_symbol_table top_stmts StringMap.empty
-  in SProgram(includes, List.map caller top_stmts)
+  in 
+  
+  SProgram(includes, List.map check_top_stmt top_stmts)
