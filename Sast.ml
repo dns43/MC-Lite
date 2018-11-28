@@ -11,7 +11,7 @@ and sx =
 	| 	SMat_Lit of sexpr list
 	| 	SId of string
 	| 	SBinop of sexpr * op * sexpr
-	| 	SAssign of sexpr * sexpr
+	| 	SAssign of string * sexpr
 	| 	SNoexpr
 	| 	SCall of string * sexpr list  
 	|  	SUnop of op * sexpr

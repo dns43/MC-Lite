@@ -30,19 +30,66 @@ let translate = function
   let main_llbuilder = L.builder_at_end context (L.entry_block main)
   in
 
+  let lookup n m = try StringMap.find n m
+            with Not_found -> raise (Failure ("var "^n^" not found"))
+  in
+
+
   let add_var (m, b) (typ, name) = 
     let var = L.build_alloca (type_to_ll typ) name b in
     (StringMap.add name var m, b)
   in
     
 
-  let build_expr (m, b) e = match e with
-    _ -> (m, b)
+  let rec build_expr (m, b) (t, e) = match e with
+        SInt_Lit i  -> L.const_int i64 i
+      (*| SBoolean_Lit b  -> L.const_int  (if b then 1 else 0)*)
+      (*| SFliteral l -> L.const_float_of_string float_t l*)
+      | SNoexpr     -> L.const_int i64 0 (* TODO hacky should fix this *)
+      | SId n       -> L.build_load (lookup n m) n b
+      | SAssign (s, (t, e)) -> 
+          let e' = build_expr (m, b) (t, e) in
+                          ignore(L.build_store e' (lookup s m) b); 
+                          e'
+      (*| SBinop ((Float_t,_ ) as e1, op, e2) ->*)
+          (*let e1' = build_expr b e1*)
+            (*and e2' = build_expr b e2 in*)
+          (*(match op with *)
+            (*Add     -> L.build_fadd*)
+          (*| Sub     -> L.build_fsub*)
+          (*| Mult    -> L.build_fmul*)
+          (*| Div     -> L.build_fdiv *)
+          (*| Equal   -> L.build_fcmp L.Fcmp.Oeq*)
+          (*| Neq     -> L.build_fcmp L.Fcmp.One*)
+          (*| Less    -> L.build_fcmp L.Fcmp.Olt*)
+          (*| Leq     -> L.build_fcmp L.Fcmp.Ole*)
+          (*| Greater -> L.build_fcmp L.Fcmp.Ogt*)
+          (*| Geq     -> L.build_fcmp L.Fcmp.Oge*)
+          (*| And | Or ->*)
+              (*raise (Failure "internal error: semant should have rejected and/or on float")*)
+          (* ) e1' e2' "tmp" b*)
+      | SBinop (e1, op, e2) ->
+        let e1' = build_expr (m, b) e1
+        and e2' = build_expr (m, b) e2 in
+        (match op with
+          Add     -> L.build_add
+        | Sub     -> L.build_sub
+        | Mult    -> L.build_mul
+        | Div     -> L.build_sdiv
+        | And     -> L.build_and
+        | Or      -> L.build_or
+        (*| Equal   -> L.build_icmp L.Icmp.Eq*)
+        (*| Neq     -> L.build_icmp L.Icmp.Ne*)
+        (*| Less    -> L.build_icmp L.Icmp.Slt*)
+        (*| Leq     -> L.build_icmp L.Icmp.Sle*)
+        (*| Greater -> L.build_icmp L.Icmp.Sgt*)
+        (*| Geq     -> L.build_icmp L.Icmp.Sge*)
+        ) e1' e2' "tmp" b
+      | _ -> L.const_int i64 0
   in
 
-
   let build_stmt (m, b) stmt = match stmt with
-      SExpr(e) -> build_expr (m, b) e
+      SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
     | SLocal(typ, name, e) -> add_var (m, b) (typ, name)
     | _ -> (m, b)
   in

@@ -126,10 +126,15 @@ let check_program = function
             | _  -> raise (Failure("Invalid assignment in " ^
                             Utils.string_of_expr e))
           in
+          let var = match v with
+              Id n -> n
+            | _  -> raise (Failure("Invalid assignment in " ^
+                            Utils.string_of_expr e))
+          in
           let (lt', v') = check_expr m v in
           let (rt, e') = check_expr m e in
           let err = "illegal assignment " 
-          in (check_assign lt rt err, SAssign((lt', v'), (rt, e')))
+          in (check_assign lt rt err, SAssign(var, (rt, e')))
       | 	Noexpr -> (Int_t, SNoexpr)
       |   Call(fname, args) as call -> 
           let fd = function_data fname in
