@@ -1,4 +1,6 @@
 
 
 int x;
-float y;
+x = 2;
+x = x + 5;
+
