@@ -110,7 +110,8 @@ let translate = function
     | SStatement(stmt_data) -> build_stmt (m, b) stmt_data
   in
 
-  List.fold_left build_top_stmt (StringMap.empty, main_llbuilder) stop_stmts;
+  let (final_m, final_b) = List.fold_left build_top_stmt (StringMap.empty, main_llbuilder) stop_stmts in
+  L.build_ret_void final_b;
   mc_module
 
   
