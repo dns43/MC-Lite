@@ -18,6 +18,7 @@ let () =
         print_string( pretty_to_string(Utils.print_tree (program()) ) );
         (*Utils.check_sprogram (sprogram());*)
         print_string(Llvm.string_of_llmodule (Codegen.translate (sprogram()) ));
+        Llvm.print_module "mc_program.ll" (Codegen.translate (sprogram()) );
         
 
   with
