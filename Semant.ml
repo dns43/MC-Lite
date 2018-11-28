@@ -45,13 +45,11 @@ let check_program = function
     in
 *)
     let print_symbl m t n =
-	if StringMap.is_empty m then print_string "create symbol table \n";
-	print_string ("Symbol Table Add: " ^ n ^ "\n");
-	StringMap.add n t m
-   in 
+      if StringMap.is_empty m then print_string "create symbol table \n";
+      print_string ("Symbol Table Add: " ^ n ^ "\n");
+      StringMap.add n t m
+    in 
 	
-	
-
     let add_symbol m stmt = match stmt with
         Local (t, n, e) -> print_symbl m t n
         | _ -> m
@@ -69,7 +67,16 @@ let check_program = function
         | _ -> m
     in
 
-    let function_decls = List.fold_left add_functions StringMap.empty top_stmts in
+
+    let function_builtins = StringMap.add "printi" {
+        fname = "printi";
+        returnType = Int_t;
+        formals = [(Int_t, "x")];
+        body = [];
+      } StringMap.empty
+    in
+
+    let function_decls = List.fold_left add_functions function_builtins top_stmts in
 
     let build_symbol_table stmts m =
         List.fold_left add_symbol m stmts 
@@ -84,22 +91,14 @@ let check_program = function
         with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
-
-    
-
-
     let check_assign lvaluet rvaluet err =
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in   
-
-
 
     let function_data s = 
       try StringMap.find s function_decls
       with Not_found -> raise (Failure ("unrecognized function " ^ s))
     in
-
- 
     
     let rec check_expr m e = match e with
           Int_Lit i -> (Int_t, SInt_Lit i)
