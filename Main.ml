@@ -12,10 +12,13 @@ let () =
         let token_list = fun () -> Processor.build_token_list (lexbuf ()) in
         (*let program = fun () -> Processor.parser filename (token_list ()) in*)
         let program = fun () -> Processor.parser filename (token_list ()) in
+        let sprogram = fun () -> Semant.check_program (program()) in
         print_string( "filename: " ^ filename ^ "\n" );
         print_string( Utils.token_list_to_string (token_list()) );
         print_string( pretty_to_string(Utils.print_tree (program()) ) );
-        Utils.check_sprogram (Semant.check_program (program()));
+        (*Utils.check_sprogram (sprogram());*)
+        print_string(Llvm.string_of_llmodule (Codegen.translate (sprogram()) ));
+        
 
   with
 	 	Parsing.Parse_error ->
