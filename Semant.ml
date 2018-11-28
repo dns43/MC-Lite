@@ -6,6 +6,8 @@ open Utils
 
 module StringMap = Map.Make(String)
 
+let dummy = function
+  _ -> SStatement(SBreak);;
 let check_program = function
   Program(includes, top_stmts) ->
 
@@ -47,30 +49,35 @@ let check_program = function
         | _ -> m
     in
 
+    let add_global_symbol m stmt = match stmt with
+        Statement (s) -> add_symbol m s 
+        | _ -> m
+    in
+
 
     let add_functions m stmt = match stmt with
-        Function f -> StringMap.add f.fname f.returnType m
+        Function f ->
+          StringMap.add f.fname f m
         | _ -> m
     in
 
     let function_decls = List.fold_left add_functions StringMap.empty top_stmts in
 
-    (* Variable symbol table: type of each global, formal, local *)
     let build_symbol_table stmts m =
         List.fold_left add_symbol m stmts 
     in
-    
+ 
+    let build_global_symbol_table stmts m =
+        List.fold_left add_global_symbol m stmts 
+    in   
+
     let type_of_identifier m s =
         try StringMap.find s m
         with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
 
-    let check_block m stmts =
-        let m' = build_symbol_table stmts m in
-        let x = check_stmt m' stmts
-        List.map x
-    in
+    
 
 
     let check_assign lvaluet rvaluet err =
@@ -84,11 +91,13 @@ let check_program = function
       with Not_found -> raise (Failure ("unrecognized function " ^ s))
     in
 
+ 
+    
     let rec check_expr m e = match e with
           Int_Lit i -> (Int_t, SInt_Lit i)
       |   Boolean_Lit b -> (Bool_t, SBoolean_Lit b)
       | 	Float_Lit v -> (Float_t, SFloat_Lit v)
-      | 	Mat_Lit v -> (Matrix_t, SMat_Lit (List.map check_expr m v))
+      (*| 	Mat_Lit v -> (Matrix_t, SMat_Lit (List.map check_expr m v))*)
       | 	Id v -> (type_of_identifier m v, SId v)
       | 	Binop(e1, op, e2) ->
           let (t1, e1') = check_expr m e1 
@@ -125,7 +134,7 @@ let check_program = function
             in (check_assign ft et err, e')  
           in 
           let args' = List.map2 check_call fd.formals args
-          in (fd.sreturnType, SCall(fname, args'))
+          in (fd.returnType, SCall(fname, args'))
       | Unop(op, e) as ex -> 
           let (t, e') = check_expr m e in
           let ty = match op with
@@ -147,6 +156,8 @@ let check_program = function
       in if t' != Bool_t then raise (Failure err) else (t', e') 
     in
 
+
+
     let rec check_stmt m stmt = match stmt with
       Block b -> SBlock(check_block m b)
       | Expr e  -> SExpr(check_expr m e)
@@ -158,36 +169,31 @@ let check_program = function
       | Break -> SBreak
       | Continue -> SContinue
       (*| Local(d, id, e) -> let symbols = set_symbol id d symbols; SLocal(d, id)  (* TODO needs more type checking *)*)
-      | Local(d, id, e) -> SLocal(d, id)  (* TODO needs more type checking *)
+      | Local(d, id, e) -> SLocal(d, id, check_expr m e)  (* TODO needs more type checking *)
       (*| MatrixDecl(p, id, r, c, e) -> SMatrixDecl(p, id, r, c, check_expr e) (* TODO *)*)
 
-  in
-
-
-    let check_fdecl m f =
-        {
-        sfname = f.fname;
-        sreturnType = f.returnType;
-        sformals = f.formals;
-        sbody = check_block m f.body;
-        }
-  in
-
-    let check_top_stmt t_stmt = 
-        let m = globals in
-        let x = match t_stmt with
-            Statement stmt -> SStatement(check_stmt m stmt)
-        | Function f -> SFunction(check_fdecl m f)
-
+  
+    and check_block m stmts =
+        let m' = build_symbol_table stmts m in
+        List.map (check_stmt m') stmts
     in
 
-    let caller stmt =
-     check_top_stmt globals stmt
-    in 
+  let check_fdecl m f =
+    {
+      sfname = f.fname;
+      sreturnType = f.returnType;
+      sformals = f.formals;
+      sbody = check_block m f.body;
+    }
+  in
 
-  
-  let globals =
-      build_symbol_table top_stmts StringMap.empty
+    let check_top_stmt m t_stmt = match t_stmt with
+        Statement stmt -> SStatement(check_stmt m stmt)
+      | Function f -> SFunction(check_fdecl m f)
   in 
   
-  SProgram(includes, List.map check_top_stmt top_stmts)
+  let globals =
+      build_global_symbol_table top_stmts StringMap.empty
+  in 
+  
+  SProgram(includes, List.map (check_top_stmt globals) top_stmts)
