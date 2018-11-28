@@ -2,7 +2,7 @@
 open Ast
 open Sast
 open Utils
-
+open Printf
 
 module StringMap = Map.Make(String)
 
@@ -44,8 +44,16 @@ let check_program = function
         with Not_found -> raise (Failure ("unrecognized function " ^ s))
     in
 *)
+    let print_symbl m t n =
+	if StringMap.is_empty m then print_string "create symbol table \n";
+	print_string ("Symbol Table Add: " ^ n ^ "\n");
+	StringMap.add n t m
+   in 
+	
+	
+
     let add_symbol m stmt = match stmt with
-        Local (t, n, e) -> StringMap.add n t m
+        Local (t, n, e) -> print_symbl m t n
         | _ -> m
     in
 
