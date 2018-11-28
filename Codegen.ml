@@ -30,6 +30,13 @@ let translate = function
   let main_llbuilder = L.builder_at_end context (L.entry_block main)
   in
 
+  let printf_t : L.lltype = 
+      L.var_arg_function_type i64 [| L.pointer_type (L.i8_type context) |] in
+  let printf_func : L.llvalue = 
+      L.declare_function "printf" printf_t mc_module in
+
+  let int_format_str = L.build_global_stringptr "%d\n" "fmt" main_llbuilder in
+
   let lookup n m = try StringMap.find n m
             with Not_found -> raise (Failure ("var "^n^" not found"))
   in
@@ -85,6 +92,10 @@ let translate = function
         (*| Greater -> L.build_icmp L.Icmp.Sgt*)
         (*| Geq     -> L.build_icmp L.Icmp.Sge*)
         ) e1' e2' "tmp" b
+
+      | SCall ("printi", [e]) ->
+        L.build_call printf_func [| int_format_str ; (build_expr (m, b) e) |]
+	        "printf" b
       | _ -> L.const_int i64 0
   in
 
