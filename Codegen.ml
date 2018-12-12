@@ -12,12 +12,14 @@ let translate = function
   
   let i64 = L.i64_type context
   and f64 = L.double_type context
+  and i1_t = L.i1_type context 
   in
 
   let type_to_ll = function
       Int_t -> i64
     | Float_t -> f64
     | _ -> i64
+    | Bool_t -> i1_t
     (* need bool, also mat? *)
   in
 
@@ -50,7 +52,7 @@ let translate = function
 
   let rec build_expr (m, b) (t, e) = match e with
         SInt_Lit i  -> L.const_int i64 i
-      (*| SBoolean_Lit b  -> L.const_int  (if b then 1 else 0)*)
+      | SBoolean_Lit b  -> L.const_int i1_t (if b then 1 else 0)
       (*| SFliteral l -> L.const_float_of_string float_t l*)
       | SNoexpr     -> L.const_int i64 0 (* TODO hacky should fix this *)
       | SId n       -> L.build_load (lookup n m) n b
