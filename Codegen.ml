@@ -48,15 +48,19 @@ let translate = function
   in
 
 (* there's only one function type*)
-  let build_func f = L.define_function f.sfname (type_to_ll f.sreturnType) mc_module in
+  (*let function_decls : (L.llvalue * sfunc_decl) StringMap.t =*)
+    let build_func m f = 
+      let name = f.sfname and formals = Array.of_list (List.map (fun (t,_) -> type_to_ll t) f.sformals) in
+      let ty = L.function_type (type_to_ll f.sreturnType) formals in
+      (StringMap.add name (L.define_function name ty mc_module) m)
+    in
+      (*List.fold_left build_func StringMap.empty functions in*)
 
   let build_top_stmt (m, b) t_stmt = match t_stmt with
-      SFunction(f_data) -> build_func f_data
-    | SStatement(stmt_data) -> build_stmt (m, b) stmt_data
+      SFunction(f_data) -> build_func m f_data
+    (*| SStatement(stmt_data) -> build_stmt (m, b) stmt_data*)
   in
 
   (* m is empty StringMap, b is the initialized as LLVM skeleton (Module-Func-BB-BB-Insn), stop_stmts is output of our compiler thus far*)
   List.fold_left build_top_stmt (StringMap.empty, main_llbuilder) stop_stmts;
   mc_module
-
-  
