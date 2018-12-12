@@ -53,7 +53,7 @@ let translate = function
   let rec build_expr (m, b) (t, e) = match e with
         SInt_Lit i  -> L.const_int i64 i
       | SBoolean_Lit b  -> L.const_int i1_t (if b then 1 else 0)
-      (*| SFliteral l -> L.const_float_of_string float_t l*)
+      | SFloat_Lit l -> L.const_float f64 l
       | SNoexpr     -> L.const_int i64 0 (* TODO hacky should fix this *)
       | SId n       -> L.build_load (lookup n m) n b
       | SAssign (s, (t, e)) -> 
