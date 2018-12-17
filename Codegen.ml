@@ -18,8 +18,9 @@ let translate = function
   let type_to_ll = function
       Int_t -> i64
     | Float_t -> f64
-    | _ -> i64
     | Bool_t -> i1_t
+    | _ -> i64
+    
     (* need bool, also mat? *)
   in
 
@@ -87,14 +88,18 @@ let translate = function
         | Div     -> L.build_sdiv
         | And     -> L.build_and
         | Or      -> L.build_or
-        (*| Equal   -> L.build_icmp L.Icmp.Eq*)
-        (*| Neq     -> L.build_icmp L.Icmp.Ne*)
-        (*| Less    -> L.build_icmp L.Icmp.Slt*)
-        (*| Leq     -> L.build_icmp L.Icmp.Sle*)
-        (*| Greater -> L.build_icmp L.Icmp.Sgt*)
-        (*| Geq     -> L.build_icmp L.Icmp.Sge*)
+        | Equal   -> L.build_icmp L.Icmp.Eq
+        | Neq     -> L.build_icmp L.Icmp.Ne
+        | Less    -> L.build_icmp L.Icmp.Slt
+        | Leq     -> L.build_icmp L.Icmp.Sle
+        | Greater -> L.build_icmp L.Icmp.Sgt
+        | Geq     -> L.build_icmp L.Icmp.Sge
         ) e1' e2' "tmp" b
-
+          | SUnop(op, e) -> 
+          let e' = build_expr (m, b) e in 
+          (match op with 
+            Neg   -> L.build_neg
+          | Not   -> L.build_not) e' "temp" b 
       | SCall ("printi", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr (m, b) e) |]
 	        "printf" b
