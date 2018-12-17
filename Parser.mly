@@ -85,7 +85,6 @@ mat_lit:
   LBRACKET mat_member_list RBRACKET { $2 }
 
 
-
 /******************
  METHODS
 ******************/
@@ -174,10 +173,24 @@ stmt:
 	|	CONTINUE SEMI				 	{ Continue }
 	|   primitive ID SEMI 			 	{ Local($1, $2, Noexpr) }
 	| 	primitive ID ASSIGN expr SEMI 	{ Local($1, $2, $4) }
-  | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET SEMI                
-        {MatrixDecl(Matrix_t, $2, $4, $6, Noexpr)} 
+  | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET SEMI
+      {
+        MatrixDecl({
+          mname = $2;
+          nrows = $4;
+          ncols = $6;
+          value = Noexpr;
+        })
+      }
   | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET ASSIGN expr SEMI                
-        {MatrixDecl(Matrix_t, $2, $4, $6, $9)}
+      {
+        MatrixDecl({
+          mname = $2;
+          nrows = $4;
+          ncols = $6;
+          value = $9;
+        })
+      }
 
 
 expr_opt:

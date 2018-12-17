@@ -168,7 +168,14 @@ let check_program = function
       in if t' != Bool_t then raise (Failure err) else (t', e') 
     in
 
-
+    let check_mdecl m md =
+      {
+        smname = md.mname;
+        snrows = md.nrows;
+        sncols = md.ncols;
+        svalue = check_expr m md.value;
+      }
+    in
 
     let rec check_stmt m stmt = match stmt with
       Block b -> SBlock(check_block m b)
@@ -182,7 +189,7 @@ let check_program = function
       | Continue -> SContinue
       (*| Local(d, id, e) -> let symbols = set_symbol id d symbols; SLocal(d, id)  (* TODO needs more type checking *)*)
       | Local(d, id, e) -> SLocal(d, id, check_expr m e)  (* TODO needs more type checking *)
-      (*| MatrixDecl(p, id, r, c, e) -> SMatrixDecl(p, id, r, c, check_expr e) (* TODO *)*)
+      | MatrixDecl(md) -> SMatrixDecl(check_mdecl m md)
 
   
     and check_block m stmts =

@@ -72,7 +72,9 @@ let string_of_local_expr = function
 	|  	e 	   -> " = " ^ string_of_expr e
 
 
-
+(*let string_of_mdecl indent = function*)
+		(*let indent_string = String.make indent '\t' in*)
+    (*mdecl(n, r, c, e) -> indent_string ^ "mat "^n^"["^string_of_int r^","^string_of_int c^"]"^ string_of_local_expr e^";\n"*)
 
 let rec string_of_stmt indent =
 	let indent_string = String.make indent '\t' in
@@ -110,7 +112,7 @@ let rec string_of_stmt indent =
 		|  	Break					-> indent_string ^ "break;\n"
 		|  	Continue				-> indent_string ^ "continue;\n"
 		|   Local(d, s, e) 			-> indent_string ^ string_of_primitive d ^ " " ^ s ^ string_of_local_expr e ^ ";\n"
-    |   MatrixDecl(m, n, r, c, e) -> indent_string ^ "mat "^n^"["^string_of_int r^","^string_of_int c^"]"^ string_of_local_expr e^";\n"
+    |   MatrixDecl(md) -> "mat decl"
 	in get_stmt_string
 
 

@@ -8,6 +8,9 @@ type fname = FName of string
 type formal = Formal of primitive * string
 (*type formal = Formal of datatype * string | Many of datatype*)
 
+
+
+
 type expr =
 		  Int_Lit of int
 	| 	Boolean_Lit of bool
@@ -20,6 +23,14 @@ type expr =
 	| 	Call of string * expr list  
 	|  	Unop of op * expr
 
+
+type mdecl = {
+	mname : string;
+  nrows : int;
+  ncols : int;
+  value : expr;
+}
+
 type stmt =
 		Block of stmt list
 	| 	Expr of expr
@@ -30,16 +41,14 @@ type stmt =
 	|  	Break
 	|   Continue
   |   Local of primitive * string * expr
-  |   MatrixDecl of primitive * string * int * int * expr
+  |   MatrixDecl of mdecl
 
-type field = Field of (*scope **) datatype * string
+type field = Field of datatype * string
 type include_stmt = Include of string
-
 
 type fdecl = {
 	fname : string;
 	returnType : primitive;
-	(*formals : formal list;*)
 	formals : (primitive * string) list;
 	body : stmt list;
 }

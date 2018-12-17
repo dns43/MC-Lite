@@ -16,6 +16,15 @@ and sx =
 	| 	SCall of string * sexpr list  
 	|  	SUnop of op * sexpr
 
+
+type smdecl = {
+	smname : string;
+  snrows : int;
+  sncols : int;
+  svalue : sexpr;
+}
+
+
 type sstmt =
 		SBlock of sstmt list
 	| 	SExpr of sexpr
@@ -26,7 +35,7 @@ type sstmt =
 	|  	SBreak
 	|   SContinue
   |   SLocal of primitive * string * sexpr
-  |   SMatrixDecl of primitive * string * int * int * sexpr
+  |   SMatrixDecl of smdecl
 
 type sfdecl = {
 	sfname : string;
