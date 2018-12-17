@@ -101,9 +101,16 @@ let translate = function
       | _ -> L.const_int i64 0
   in
 
+  let add_mdecl (m, b) (md) =
+    let msize = md.sncols * md.snrows in
+    let vec = L.build_alloca (L.vector_type f64 msize) md.smname b in
+    (StringMap.add md.smname vec m, b)
+  in
+
   let build_stmt (m, b) stmt = match stmt with
       SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
     | SLocal(typ, name, e) -> add_var (m, b) (typ, name)
+    | SMatrixDecl(md) -> add_mdecl (m, b) (md)
     | _ -> (m, b)
   in
 
