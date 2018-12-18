@@ -18,6 +18,7 @@ and sx =
 
 
 type smdecl = {
+	smtype : primitive;
 	smname : string;
   snrows : int;
   sncols : int;

@@ -1,5 +1,5 @@
 type op = Add | Sub | Mult | MMult | Div | MDiv | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod | Inc | Dec  | Neg
-type primitive = Int_t | Float_t | Bool_t | Matrix_t 
+type primitive = Int_t | Float_t | Bool_t | Matrix_t of int * int | Void_t (* Void is internal only *)
 type datatype =  Datatype of primitive | Any
 
 (*type extends = NoParent | Parent of string*)
@@ -25,9 +25,8 @@ type expr =
 
 
 type mdecl = {
+  mtype : primitive;
 	mname : string;
-  nrows : int;
-  ncols : int;
   value : expr;
 }
 

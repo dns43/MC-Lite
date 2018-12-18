@@ -141,7 +141,7 @@ type_tag:
 		primitive { $1 }
 
 matrix_type:
-  MATRIX {Matrix_t}
+  MATRIX LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET {Matrix_t($3, $5)}
 
 
 datatype:
@@ -174,22 +174,20 @@ stmt:
 	|	CONTINUE SEMI				 	{ Continue }
 	|   primitive ID SEMI 			 	{ Local($1, $2, Noexpr) }
 	| 	primitive ID ASSIGN expr SEMI 	{ Local($1, $2, $4) }
-  | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET SEMI
+  | matrix_type ID SEMI
       {
         MatrixDecl({
+          mtype = $1;
           mname = $2;
-          nrows = $4;
-          ncols = $6;
           value = Noexpr;
         })
       }
-  | MATRIX ID LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET ASSIGN expr SEMI                
+  | matrix_type ID ASSIGN expr SEMI                
       {
         MatrixDecl({
+          mtype = $1;
           mname = $2;
-          nrows = $4;
-          ncols = $6;
-          value = $9;
+          value = $4;
         })
       }
 
