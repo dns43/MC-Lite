@@ -91,7 +91,7 @@ let translate = function
           (*| And | Or ->*)
               (*raise (Failure "internal error: semant should have rejected and/or on float")*)
           (* ) e1' e2' "tmp" b*)
-      | SBinop (e1, op, e2) ->
+      | SBinop(e1, op, e2) when t = Int_t ->
         let e1' = build_expr (m, b) e1
         and e2' = build_expr (m, b) e2 in
         (match op with
@@ -119,7 +119,7 @@ let translate = function
       | SCall ("printfloat", [e]) -> 
         L.build_call printf_func [| float_format_str ; (build_expr (m, b) e)|]
                "printf" b
-      | _ -> L.const_int i64 0
+      | _ -> raise(Failure("Invalid Operation"))
   in
 
   let add_mdecl (m, b) (md) =
