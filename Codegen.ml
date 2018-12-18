@@ -19,8 +19,9 @@ let translate = function
   let type_to_ll = function
       Int_t -> i64
     | Float_t -> f64
-    | _ -> i64
     | Bool_t -> i1_t
+    | _ -> i64 (*raise(Failure("unrecognized type")*)
+    
     (* need bool, also mat? *)
   in
 
@@ -37,8 +38,15 @@ let translate = function
       L.var_arg_function_type i64 [| L.pointer_type (L.i8_type context) |] in
   let printf_func : L.llvalue = 
       L.declare_function "printf" printf_t mc_module in
-
+  
   let int_format_str = L.build_global_stringptr "%d\n" "fmt" main_llbuilder in
+
+  (*print function for floats*) 
+ (* let printfl_t : L.lltype = 
+          L.var_arg_function_type f64 [| L.pointer_type (L.i8_type context)|] in   let printfl_func : L.llvalue = 
+          L.declare_function "printfl" printfl_t mc_module in 
+*)
+  let float_format_str = L.build_global_stringptr "%f\n" "fmt" main_llbuilder in
 
   let lookup n m = try StringMap.find n m
             with Not_found -> raise (Failure ("var "^n^" not found"))
@@ -93,17 +101,24 @@ let translate = function
         | Div     -> L.build_sdiv
         | And     -> L.build_and
         | Or      -> L.build_or
-        (*| Equal   -> L.build_icmp L.Icmp.Eq*)
-        (*| Neq     -> L.build_icmp L.Icmp.Ne*)
-        (*| Less    -> L.build_icmp L.Icmp.Slt*)
-        (*| Leq     -> L.build_icmp L.Icmp.Sle*)
-        (*| Greater -> L.build_icmp L.Icmp.Sgt*)
-        (*| Geq     -> L.build_icmp L.Icmp.Sge*)
+        | Equal   -> L.build_icmp L.Icmp.Eq
+        | Neq     -> L.build_icmp L.Icmp.Ne
+        | Less    -> L.build_icmp L.Icmp.Slt
+        | Leq     -> L.build_icmp L.Icmp.Sle
+        | Greater -> L.build_icmp L.Icmp.Sgt
+        | Geq     -> L.build_icmp L.Icmp.Sge
         ) e1' e2' "tmp" b
-
+          | SUnop(op, e) -> 
+          let e' = build_expr (m, b) e in 
+          (match op with 
+            Neg   -> L.build_neg
+          | Not   -> L.build_not) e' "temp" b 
       | SCall ("printi", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr (m, b) e) |]
 	        "printf" b
+      | SCall ("printfloat", [e]) -> 
+        L.build_call printf_func [| float_format_str ; (build_expr (m, b) e)|]
+               "printf" b
       | _ -> L.const_int i64 0
   in
 
