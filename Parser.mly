@@ -184,6 +184,7 @@ expr_opt:
 		/* nothing */ { Noexpr }
 	| 	expr          { $1 }
 
+
 expr:
 		literals		 					{ $1 }
 	| 	expr PLUS   expr 					{ Binop($1, Add,   $3) }
@@ -208,11 +209,12 @@ expr:
 	|   MINUS expr 							{ Unop (Neg, $2) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
 	| 	LPAREN expr RPAREN 					{ $2 }
-  |   expr EOF                      {$1}
+
 
 bracket_args:
 		LBRACKET expr						 { [$2] }
 	| 	bracket_args RBRACKET LBRACKET expr { $4 :: $1 }
+
 
 literals:
 	  INT_LITERAL      		{ Int_Lit($1) }
