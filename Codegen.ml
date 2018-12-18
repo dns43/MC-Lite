@@ -126,7 +126,7 @@ let translate = function
     let msize = md.sncols * md.snrows in
     let vec = L.build_alloca (L.vector_type f64 msize) md.smname b in
     let m' = StringMap.add md.smname vec m in
-    ignore(build_expr (m', b) (Matrix_t, SAssign(md.smname, md.svalue)));
+    ignore(build_expr (m', b) (md.smtype, SAssign(md.smname, md.svalue)));
     (m', b)
   in
 

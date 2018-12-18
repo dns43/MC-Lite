@@ -12,9 +12,9 @@ let save file string =
 
 let string_of_primitive = function 
 		Int_t 						-> "int"
-    |	Matrix_t 					-> "mat"
-	| 	Float_t 					-> "float"
-	| 	Bool_t 						-> "bool"
+  |	Matrix_t(r, c) 		-> "mat["^(string_of_int r)^","^(string_of_int c)^"]"
+	| Float_t 					-> "float"
+	|	Bool_t 						-> "bool"
 
 let rec print_brackets = function
 		1 -> "[]"
