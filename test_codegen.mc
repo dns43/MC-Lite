@@ -14,8 +14,8 @@ b = y < z;
 float f;
 f = 2.9999999;
 
-//printfloat(f); 
-printi(x);
-printi(y);
-printi(z);
+printf(f); 
+//printi(x);
+//printi(y);
+//printi(z);
 //printi(b);

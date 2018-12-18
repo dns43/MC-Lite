@@ -116,7 +116,7 @@ let translate = function
       | SCall ("printi", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr (m, b) e) |]
 	        "printf" b
-      | SCall ("printfloat", [e]) -> 
+      | SCall ("printf", [e]) -> 
         L.build_call printf_func [| float_format_str ; (build_expr (m, b) e)|]
                "printf" b
       | _ -> raise(Failure("Invalid Operation"))
@@ -129,14 +129,38 @@ let translate = function
     ignore(build_expr (m', b) (md.smtype, SAssign(md.smname, md.svalue)));
     (m', b)
   in
-
+(*
+  let add_terminal(builder, f)  = 
+    match L.block_terminator(L.insertion_block builder) with 
+        Some _ -> () 
+      | None -> ignore (f builder) in 
+*)
   let build_stmt (m, b) stmt = match stmt with
       SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
     | SLocal(typ, name, e) -> add_var (m, b) (typ, name)
     | SMatrixDecl(md) -> add_mdecl (m, b) (md)
     | _ -> (m, b)
   in
+    (*
+    | SIf (predicate, then_stmt, else_stmt) -> 
+        let bool_val = (build_expr(m, b) predicate) in 
+        let merge_bb = L.append_block context
+                        "merge" main in 
+        let b_br_merge = L.build_br merge_bb in 
+        let then_bb = L.append_block context 
+                      "then" main in 
+        add_terminal(L.builder_at_end, then_stmt)
+        (L.build_br merge_bb);
+        let else_bb = L.append_block context 
 
+                    "else" main in 
+        add_terminal 
+        (stmt(L.builder_at_end context else_bb) else_stmt)
+        b_br_merge; 
+
+        ignore(L.build_cond_br bool_val then_bb else_bb builder);
+        L.builder_at_end context merge_bb
+  in *)
   let build_top_stmt (m, b) t_stmt = match t_stmt with
       SFunction(f_data) -> (m, b)
     | SStatement(stmt_data) -> build_stmt (m, b) stmt_data
