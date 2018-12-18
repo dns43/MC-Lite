@@ -5,7 +5,7 @@ open Ast
 
 type sexpr = primitive * sx
 and sx =
-		SInt_Lit of int
+      SInt_Lit of int
 	| 	SBoolean_Lit of bool
 	| 	SFloat_Lit of float
 	| 	SMat_Lit of sexpr list

@@ -99,12 +99,13 @@ let check_program = function
       try StringMap.find s function_decls
       with Not_found -> raise (Failure ("unrecognized function " ^ s))
     in
+
     
     let rec check_expr m e = match e with
           Int_Lit i -> (Int_t, SInt_Lit i)
       |   Boolean_Lit b -> (Bool_t, SBoolean_Lit b)
       | 	Float_Lit v -> (Float_t, SFloat_Lit v)
-      (*| 	Mat_Lit v -> (Matrix_t, SMat_Lit (List.map check_expr m v))*)
+      | 	Mat_Lit v -> (Matrix_t, SMat_Lit (List.map (check_mat_val m) v))
       | 	Id v -> (type_of_identifier m v, SId v)
       | 	Binop(e1, op, e2) ->
           let (t1, e1') = check_expr m e1 
@@ -158,7 +159,15 @@ let check_program = function
           in (ty, SUnop(op, (t, e')))
 
       |   _ -> (Int_t, SNoexpr)
+
+    and check_mat_val m v =
+      let (ty, sv) = check_expr m v in
+      match sv with
+        SFloat_Lit _ -> ty, sv
+      | SInt_Lit i ->  Float_t, SFloat_Lit(float_of_int i)
+      | _ -> raise (Failure ("Matrix values must be numbers"))
     in
+    
 
     let check_bool_expr m e = 
       let (t', e') = check_expr m e
@@ -169,11 +178,23 @@ let check_program = function
     in
 
     let check_mdecl m md =
+      (* check if MAT_LIT or NoExpr, otherwise fail *)
+      let msize = md.nrows * md.ncols in
+      (* for mat lit check if same size *)
+      (* for noexpr replace with mat lit of 0s *)
+      let svalue' = match md.value with
+          Mat_Lit(ml) when (List.length ml) = msize ->
+              SMat_Lit(List.map (check_mat_val m) ml)
+        | Noexpr -> SMat_Lit(List.init msize (fun _ -> (Float_t, SFloat_Lit(0.0))))
+        | Mat_Lit(ml) when  List.length ml != msize ->
+              raise (Failure ("Matrix assignment sizes must match"))
+        | _ -> raise (Failure ("Invalid Matrix Initialization"))
+      in
       {
         smname = md.mname;
         snrows = md.nrows;
         sncols = md.ncols;
-        svalue = check_expr m md.value;
+        svalue = (Matrix_t, svalue');
       }
     in
 
