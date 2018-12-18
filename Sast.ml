@@ -5,7 +5,7 @@ open Ast
 
 type sexpr = primitive * sx
 and sx =
-		SInt_Lit of int
+      SInt_Lit of int
 	| 	SBoolean_Lit of bool
 	| 	SFloat_Lit of float
 	| 	SMat_Lit of sexpr list
@@ -15,6 +15,16 @@ and sx =
 	| 	SNoexpr
 	| 	SCall of string * sexpr list  
 	|  	SUnop of op * sexpr
+
+
+type smdecl = {
+	smtype : primitive;
+	smname : string;
+  snrows : int;
+  sncols : int;
+  svalue : sexpr;
+}
+
 
 type sstmt =
 		SBlock of sstmt list
@@ -26,7 +36,7 @@ type sstmt =
 	|  	SBreak
 	|   SContinue
   |   SLocal of primitive * string * sexpr
-  |   SMatrixDecl of primitive * string * int * int * sexpr
+  |   SMatrixDecl of smdecl
 
 type sfdecl = {
 	sfname : string;

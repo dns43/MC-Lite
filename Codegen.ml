@@ -1,6 +1,7 @@
 module L = Llvm
 open Ast
 open Sast
+open Printf
 
 module StringMap = Map.Make(String)
 
@@ -56,12 +57,17 @@ let translate = function
     let var = L.build_alloca (type_to_ll typ) name b in
     (StringMap.add name var m, b)
   in
-    
 
+  let to_ll_float = function
+      Float_t, SFloat_Lit f -> L.const_float f64 f
+    | _, _ -> raise (Failure ("Error expected float"))
+  in
+    
   let rec build_expr (m, b) (t, e) = match e with
         SInt_Lit i  -> L.const_int i64 i
       | SBoolean_Lit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFloat_Lit l -> L.const_float f64 l
+      | SMat_Lit ml -> L.const_vector (Array.of_list (List.map to_ll_float  ml))
       | SNoexpr     -> L.const_int i64 0 (* TODO hacky should fix this *)
       | SId n       -> L.build_load (lookup n m) n b
       | SAssign (s, (t, e)) -> 
@@ -85,7 +91,7 @@ let translate = function
           (*| And | Or ->*)
               (*raise (Failure "internal error: semant should have rejected and/or on float")*)
           (* ) e1' e2' "tmp" b*)
-      | SBinop (e1, op, e2) ->
+      | SBinop(e1, op, e2) when t = Int_t ->
         let e1' = build_expr (m, b) e1
         and e2' = build_expr (m, b) e2 in
         (match op with
@@ -113,7 +119,15 @@ let translate = function
       | SCall ("printf", [e]) -> 
         L.build_call printf_func [| float_format_str ; (build_expr (m, b) e)|]
                "printf" b
-      | _ -> L.const_int i64 0
+      | _ -> raise(Failure("Invalid Operation"))
+  in
+
+  let add_mdecl (m, b) (md) =
+    let msize = md.sncols * md.snrows in
+    let vec = L.build_alloca (L.vector_type f64 msize) md.smname b in
+    let m' = StringMap.add md.smname vec m in
+    ignore(build_expr (m', b) (md.smtype, SAssign(md.smname, md.svalue)));
+    (m', b)
   in
 (*
   let add_terminal(builder, f)  = 
@@ -124,6 +138,7 @@ let translate = function
   let build_stmt (m, b) stmt = match stmt with
       SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
     | SLocal(typ, name, e) -> add_var (m, b) (typ, name)
+    | SMatrixDecl(md) -> add_mdecl (m, b) (md)
     | _ -> (m, b)
   in
     (*
