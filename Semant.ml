@@ -114,6 +114,9 @@ let check_program = function
           let ty = match op with
             Add | Sub | Mult | Div when same && t1 = Int_t   -> Int_t
           | Add | Sub | Mult | Div when same && t1 = Float_t -> Float_t
+          | Add | Sub | Mult when same && t1 = Matrix_t -> Matrix_t (* TODO check rows/cols match *)
+          | Add | Sub | Mult | Div when t1 = Matrix_t && t2 = Float_t -> Matrix_t
+          | Add | Sub | Mult when t1 = Float_t && t2 = Matrix_t -> Matrix_t
           | Equal | Neq | Less | Leq | Greater | Geq
                      when same && (t1 = Int_t || t1 = Float_t) -> Bool_t
           | And | Or when same && t1 = Bool_t -> Bool_t
@@ -182,19 +185,21 @@ let check_program = function
       let msize = md.nrows * md.ncols in
       (* for mat lit check if same size *)
       (* for noexpr replace with mat lit of 0s *)
-      let svalue' = match md.value with
-          Mat_Lit(ml) when (List.length ml) = msize ->
-              SMat_Lit(List.map (check_mat_val m) ml)
-        | Noexpr -> SMat_Lit(List.init msize (fun _ -> (Float_t, SFloat_Lit(0.0))))
-        | Mat_Lit(ml) when  List.length ml != msize ->
+      let t, se = check_expr m md.value in
+      let svalue = match se with
+          SMat_Lit(ml) when (List.length ml) = msize -> SMat_Lit(ml)
+        | SNoexpr -> SMat_Lit(List.init msize (fun _ -> (Float_t, SFloat_Lit(0.0))))
+        | SMat_Lit(ml) when List.length ml != msize ->
                raise (Failure ("Matrix assignment sizes must match"))
-        | _ -> raise (Failure ("Invalid Matrix Initialization"))
+        | _ -> match t with
+            Matrix_t -> se
+          | _ -> raise (Failure ("Invalid Matrix Initialization"))
       in
       {
         smname = md.mname;
         snrows = md.nrows;
         sncols = md.ncols;
-        svalue = (Matrix_t, svalue');
+        svalue = (Matrix_t, svalue);
       }
     in
 
