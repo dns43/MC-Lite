@@ -183,7 +183,11 @@ let check_program = function
       let t, se = check_expr m md.value in
       let svalue = match se with
           SMat_Lit(ml) when (List.length ml) = msize -> SMat_Lit(ml)
-        | SNoexpr -> SMat_Lit(List.init msize (fun _ -> (Float_t, SFloat_Lit(0.0))))
+        | SNoexpr ->
+            let init_f = (fun _ -> (Float_t, SFloat_Lit(0.0))) in
+            let init_a = Array.init msize init_f in
+            let init_l = Array.to_list init_a in
+           SMat_Lit(init_l)
         | SMat_Lit(ml) when List.length ml != msize ->
                raise (Failure ("Matrix assignment sizes must match"))
         | _ -> match t with
