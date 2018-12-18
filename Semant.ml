@@ -52,19 +52,19 @@ let check_program = function
 	
     let add_symbol m stmt = match stmt with
         Local (t, n, e) -> print_symbl m t n
-        | _ -> m
+      | MatrixDecl(md) -> print_symbl m Matrix_t md.mname
+      | _ -> m
     in
 
     let add_global_symbol m stmt = match stmt with
         Statement (s) -> add_symbol m s 
-        | _ -> m
+      | _ -> m
     in
 
 
     let add_functions m stmt = match stmt with
-        Function f ->
-          StringMap.add f.fname f m
-        | _ -> m
+        Function f -> StringMap.add f.fname f m
+      | _ -> m
     in
 
 
@@ -187,7 +187,7 @@ let check_program = function
               SMat_Lit(List.map (check_mat_val m) ml)
         | Noexpr -> SMat_Lit(List.init msize (fun _ -> (Float_t, SFloat_Lit(0.0))))
         | Mat_Lit(ml) when  List.length ml != msize ->
-              raise (Failure ("Matrix assignment sizes must match"))
+               raise (Failure ("Matrix assignment sizes must match"))
         | _ -> raise (Failure ("Invalid Matrix Initialization"))
       in
       {

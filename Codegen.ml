@@ -1,6 +1,7 @@
 module L = Llvm
 open Ast
 open Sast
+open Printf
 
 module StringMap = Map.Make(String)
 
@@ -48,12 +49,17 @@ let translate = function
     let var = L.build_alloca (type_to_ll typ) name b in
     (StringMap.add name var m, b)
   in
-    
 
+  let to_ll_float = function
+      Float_t, SFloat_Lit f -> L.const_float f64 f
+    | _, _ -> raise (Failure ("Error expected float"))
+  in
+    
   let rec build_expr (m, b) (t, e) = match e with
         SInt_Lit i  -> L.const_int i64 i
       | SBoolean_Lit b  -> L.const_int i1_t (if b then 1 else 0)
       | SFloat_Lit l -> L.const_float f64 l
+      | SMat_Lit ml -> L.const_vector (Array.of_list (List.map to_ll_float  ml))
       | SNoexpr     -> L.const_int i64 0 (* TODO hacky should fix this *)
       | SId n       -> L.build_load (lookup n m) n b
       | SAssign (s, (t, e)) -> 
@@ -104,7 +110,9 @@ let translate = function
   let add_mdecl (m, b) (md) =
     let msize = md.sncols * md.snrows in
     let vec = L.build_alloca (L.vector_type f64 msize) md.smname b in
-    (StringMap.add md.smname vec m, b)
+    let m' = StringMap.add md.smname vec m in
+    ignore(build_expr (m', b) (Matrix_t, SAssign(md.smname, md.svalue)));
+    (m', b)
   in
 
   let build_stmt (m, b) stmt = match stmt with
