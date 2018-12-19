@@ -147,14 +147,15 @@ let check_program = function
           in (fd.returnType, SCall(fname, args'))
       | Unop(op, e) as ex -> 
           let (t, e') = check_expr m e in
-          let ty = match op with
-            Neg when t = Int_t || t = Float_t -> t
-          | Inc when t = Int_t -> t
-          | Dec when t = Int_t -> t
-          | Not when t = Bool_t -> Bool_t
+          let ty = match t, op with
+            Int_t, Neg -> t 
+          | Float_t, Neg -> t
+          | Int_t, Inc -> t
+          | Int_t, Dec -> t
+          | Bool_t, Not -> Bool_t
+          | Matrix_t(r, c), Transpose -> Matrix_t(c, r)
           | _ -> raise (Failure ("illegal unary operator " ))
           in (ty, SUnop(op, (t, e')))
-
       |   _ -> raise( Failure("Unsupported Expression (semantic analysis)") )
 
     and check_mat_val m v =

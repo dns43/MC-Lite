@@ -1,4 +1,4 @@
-type op = Add | Sub | Mult | MMult | Div | MDiv | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod | Inc | Dec  | Neg
+type op = Add | Sub | Mult | MMult | Div | MDiv | Equal | Neq | Less | Leq | Greater | Geq | And | Not | Or | Mod | Inc | Dec  | Neg | Transpose
 type primitive = Int_t | Float_t | Bool_t | Matrix_t of int * int | Void_t (* Void is internal only *)
 type datatype =  Datatype of primitive | Any
 

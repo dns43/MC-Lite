@@ -8,6 +8,7 @@ mat[2, 2] h = x;
 h = h+x;
 
 x = h*h;
+x = x.~;
 
 printi(63110);
 
