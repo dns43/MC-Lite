@@ -214,6 +214,26 @@ let translate = function
       | SCall ("printf", [e]) -> 
         L.build_call printf_func [| float_format_str ; (build_expr (m, b) e)|]
                "printf" b
+      | SCall ("printmat", [(Matrix_t(r,c), me)]) ->
+          let mat_format_str = ref "" in
+          for i=0 to r-1 do
+            for j=0 to c-1 do
+              mat_format_str := !mat_format_str^"%f ";
+            done;
+            mat_format_str := !mat_format_str^"\n";
+          done;
+          let mat_format_strptr = L.build_global_stringptr !mat_format_str "fmt" b in
+          let mat_vec = build_expr (m, b) (Matrix_t(r,c), me) in
+          let arg_list = ref [mat_format_strptr;] in
+          for i=0 to (r*c)-1 do
+            let ind = L.const_int i64 i in
+            let el = L.build_extractelement mat_vec ind "el" b in
+            arg_list := !arg_list @ [el;];
+          done;
+          L.build_call printf_func (Array.of_list !arg_list)
+               "printf" b
+      | SCall ("printmat", [(_, _)]) ->
+          raise(Failure("Codegen: printmat called with non matrix parameter"))
       | _ -> raise(Failure("Codegen: Invalid Expression"))
   in
 

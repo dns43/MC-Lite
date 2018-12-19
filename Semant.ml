@@ -52,6 +52,14 @@ let check_program = function
         body = [];
       } function_builtins
     in
+    let function_builtins = StringMap.add "printmat" {
+        fname = "printmat";
+        returnType = Int_t;
+        formals = [(Matrix_t(0,0), "x")]; (* mat dims here are ignored *)
+        body = [];
+      } function_builtins
+    in
+
 
 
     let function_decls = List.fold_left add_functions function_builtins top_stmts in
@@ -71,6 +79,7 @@ let check_program = function
 
     let check_assign lvaluet rvaluet err = match lvaluet, rvaluet with
         Matrix_t(r1, c1), Matrix_t(r2, c2) when r1*c1 = r2*c2 -> lvaluet
+      | Matrix_t(0, 0), Matrix_t(r2, c2) -> rvaluet (* dummy matrix_t *)
       | Matrix_t(r1, c1), Matrix_t(r2, c2) when r1*c1 != r2*c2 ->
           raise (Failure (err^" matrix size mismatch"))
       | rt, lt when rt = lt -> lt

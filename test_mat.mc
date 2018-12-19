@@ -17,5 +17,6 @@ x[0,1] = x[1, 0];
 
 printi(63110);
 printf(1.1);
+printmat(x);
 
 // asdf
