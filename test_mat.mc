@@ -33,6 +33,9 @@ printmat(t*0.2);
 printi(91);
 printmat(0.2*t);
 
+printi(10);
+printf(1.1 * 2.0);
+
 
 float f = x[0, 0];
 

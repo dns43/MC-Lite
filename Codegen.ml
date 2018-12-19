@@ -98,23 +98,7 @@ let translate = function
           let e1' = build_expr (m, b) (t, e1) in
           ignore(L.build_store e1' (lookup s m) b); 
           e1'
-      (*| SBinop ((Float_t,_ ) as e1, op, e2) ->*)
-          (*let e1' = build_expr b e1*)
-            (*and e2' = build_expr b e2 in*)
-          (*(match op with *)
-            (*Add     -> L.build_fadd*)
-          (*| Sub     -> L.build_fsub*)
-          (*| Mult    -> L.build_fmul*)
-          (*| Div     -> L.build_fdiv *)
-          (*| Equal   -> L.build_fcmp L.Fcmp.Oeq*)
-          (*| Neq     -> L.build_fcmp L.Fcmp.One*)
-          (*| Less    -> L.build_fcmp L.Fcmp.Olt*)
-          (*| Leq     -> L.build_fcmp L.Fcmp.Ole*)
-          (*| Greater -> L.build_fcmp L.Fcmp.Ogt*)
-          (*| Geq     -> L.build_fcmp L.Fcmp.Oge*)
-          (*| And | Or ->*)
-              (*raise (Failure "internal error: semant should have rejected and/or on float")*)
-          (* ) e1' e2' "tmp" b*)
+      
       | SBinop(e1, op, e2) when is_mat_t t ->
         let e1' = build_expr (m, b) e1
         and e2' = build_expr (m, b) e2 in
@@ -188,6 +172,23 @@ let translate = function
             done;
           done;
           !dest'
+      | SBinop(e1, op, e2) when t = Float_t ->
+          let e1' = build_expr (m, b) e1
+          and e2' = build_expr (m, b) e2 in
+          (match op with 
+            Add     -> L.build_fadd
+          | Sub     -> L.build_fsub
+          | Mult    -> L.build_fmul
+          | Div     -> L.build_fdiv 
+          | Equal   -> L.build_fcmp L.Fcmp.Oeq
+          | Neq     -> L.build_fcmp L.Fcmp.One
+          | Less    -> L.build_fcmp L.Fcmp.Olt
+          | Leq     -> L.build_fcmp L.Fcmp.Ole
+          | Greater -> L.build_fcmp L.Fcmp.Ogt
+          | Geq     -> L.build_fcmp L.Fcmp.Oge
+          | And | Or ->
+              raise (Failure "internal error: semant should have rejected and/or on float")
+           ) e1' e2' "tmp" b
       | SBinop(e1, op, e2) when t = Int_t ->
         let e1' = build_expr (m, b) e1
         and e2' = build_expr (m, b) e2 in
