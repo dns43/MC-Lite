@@ -121,31 +121,23 @@ let translate = function
         (match op with
           Add -> (match e1, e2 with
               (Matrix_t(r1, c1), _), (Matrix_t(r2, c2), _) ->
-                let msize = r1*c1 in
-                (*let dest = L.vector_type f64 msize in*)
-                let dest = L.build_alloca (L.vector_type f64 msize) "dest_a" b in
-                let dest' = L.build_load dest "dest" b in
-                for i = 1 to msize do
-                  let v1 = L.build_extractelement e1' (L.const_int i64 i) "v1" b in
-                  let v2 = L.build_extractelement e2' (L.const_int i64 i) "v2" b in
-                  let res = L.build_fadd v1 v2 "res" b in
-                  ignore(dest' = L.build_insertelement dest' res (L.const_int i64 i) "ins" b);
-                done;
-                dest'
+                L.build_fadd e1' e2' "add" b
+            | (Matrix_t(r1, c1), _), (Float_t, _) ->
+                let msize = r1 * c1 in
+                let broadcast = L.const_vector (Array.make msize e2') in
+                L.build_fadd e1' broadcast "add" b
+            | (Float_t, _), (Matrix_t(r1, c1), _) ->
+                let msize = r1 * c1 in
+                let broadcast = L.const_vector (Array.make msize e1') in
+                L.build_fadd e2' broadcast "add" b
             | _, _ -> raise(Failure("Codegen Matrix Addition Unsupported Types")))
         | Sub -> (match e1, e2 with
               (Matrix_t(r1, c1), _), (Matrix_t(r2, c2), _) ->
-                let msize = r1*c1 in
-                (*let dest = L.vector_type f64 msize in*)
-                let dest = L.build_alloca (L.vector_type f64 msize) "dest_a" b in
-                let dest' = L.build_load dest "dest" b in
-                for i = 1 to msize do
-                  let v1 = L.build_extractelement e1' (L.const_int i64 i) "v1" b in
-                  let v2 = L.build_extractelement e2' (L.const_int i64 i) "v2" b in
-                  let res = L.build_fsub v1 v2 "res" b in
-                  ignore(dest' = L.build_insertelement dest' res (L.const_int i64 i) "ins" b);
-                done;
-                dest'
+                L.build_fsub e1' e2' "sub" b
+            | (Matrix_t(r1, c1), _), (Float_t, _) ->
+                let msize = r1 * c1 in
+                let broadcast = L.const_vector (Array.make msize e2') in
+                L.build_fsub e1' broadcast "sub" b
             | _, _ -> raise(Failure("Codegen Matrix Subtraction Unsupported Types")))
         | Mult -> (match e1, e2 with
               (Matrix_t(r1, c1), _), (Matrix_t(r2, c2), _) ->
@@ -157,6 +149,7 @@ let translate = function
                 for r = 0 to r1-1 do
                   for c = 0 to c2-1 do
                     let dind = L.const_int i64 (r*c2 + c) in
+                    begin
                     for i = 0 to r1-1 do
                       let ind1 = L.const_int i64 (r*c1 + i) in
                       let ind2 = L.const_int i64 (i*c2) in
@@ -167,6 +160,7 @@ let translate = function
                       (*let dest' = L.build_insertelement dest' res dind "ins" b in*)
                       ignore(dest' = L.build_insertelement dest' res dind "ins" b);
                     done;
+                    end
                   done;
                 done;
                 dest'

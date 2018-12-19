@@ -59,6 +59,14 @@ let check_program = function
         body = [];
       } function_builtins
     in
+    (*let function_builtins = StringMap.add "prints" {*)
+        (*fname = "prints";*)
+        (*returnType = Int_t;*)
+        (*formals = [(Matrix_t(0,0), "x")]; (* mat dims here are ignored *)*)
+        (*body = [];*)
+      (*} function_builtins*)
+    (*in*)
+
 
 
 
