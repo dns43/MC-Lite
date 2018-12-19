@@ -172,9 +172,9 @@ let translate = function
             done;
           done;
           !dest'
-      | SBinop(e1, op, e2) when t = Float_t ->
-          let e1' = build_expr (m, b) e1
-          and e2' = build_expr (m, b) e2 in
+      | SBinop((Float_t, e1), op, (Float_t, e2)) ->
+          let e1' = build_expr (m, b) (Float_t, e1)
+          and e2' = build_expr (m, b) (Float_t, e2) in
           (match op with 
             Add     -> L.build_fadd
           | Sub     -> L.build_fsub
@@ -189,9 +189,9 @@ let translate = function
           | And | Or ->
               raise (Failure "internal error: semant should have rejected and/or on float")
            ) e1' e2' "tmp" b
-      | SBinop(e1, op, e2) when t = Int_t ->
-        let e1' = build_expr (m, b) e1
-        and e2' = build_expr (m, b) e2 in
+      | SBinop((Int_t, e1), op, (Int_t, e2)) ->
+        let e1' = build_expr (m, b) (Int_t, e1)
+        and e2' = build_expr (m, b) (Int_t, e2) in
         (match op with
           Add     -> L.build_add
         | Sub     -> L.build_sub
@@ -206,11 +206,11 @@ let translate = function
         | Greater -> L.build_icmp L.Icmp.Sgt
         | Geq     -> L.build_icmp L.Icmp.Sge
         ) e1' e2' "tmp" b
-          | SUnop(op, e) -> 
-          let e' = build_expr (m, b) e in 
-          (match op with 
-            Neg   -> L.build_neg
-          | Not   -> L.build_not) e' "temp" b 
+      | SUnop(op, e) -> 
+        let e' = build_expr (m, b) e in 
+        (match op with 
+          Neg   -> L.build_neg
+        | Not   -> L.build_not) e' "temp" b 
       | SCall ("printi", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr (m, b) e) |]
 	        "printf" b
@@ -247,14 +247,31 @@ let translate = function
     ignore(build_expr (m', b) (md.smtype, SAssign(md.smname, md.svalue)));
     (m', b)
   in
-(*
-  let add_terminal(builder, f)  = 
-    match L.block_terminator(L.insertion_block builder) with 
-        Some _ -> () 
-      | None -> ignore (f builder) in 
-*)
-  let build_stmt (m, b) stmt = match stmt with
+
+  let add_terminal (m, b) instr =
+      match L.block_terminator (L.insertion_block b) with
+	      Some _ -> ()
+      | None -> ignore (instr b)
+  in
+
+  let rec build_stmt (m, b) stmt = match stmt with
       SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
+	  | SBlock sl -> List.fold_left build_stmt (m, b) sl
+    | SIf (predicate, then_stmt, else_stmt) ->
+          let bool_val = build_expr (m, b) predicate in
+	        let merge_bb = L.append_block context "merge" main in
+          let build_br_merge = L.build_br merge_bb in (* partial function *)
+
+	        let then_bb = L.append_block context "then" main in
+          let m1, b1 = build_stmt (m, (L.builder_at_end context then_bb)) then_stmt in
+          ignore( build_br_merge b1 );
+					(*add_terminal (build_stmt (m, (L.builder_at_end context then_bb)) then_stmt) build_br_merge;*)
+
+	        let else_bb = L.append_block context "else" main in
+	        add_terminal (build_stmt (m, (L.builder_at_end context else_bb)) else_stmt) build_br_merge;
+
+	        ignore(L.build_cond_br bool_val then_bb else_bb b);
+	        (m, L.builder_at_end context merge_bb)
     | SLocal(typ, name, (Void_t, SNoexpr)) ->
         let var = L.build_alloca (type_to_ll typ) name b in
         let (m, b) = (StringMap.add name var m, b) in
