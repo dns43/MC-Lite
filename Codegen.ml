@@ -248,12 +248,28 @@ let translate = function
     (m', b)
   in
 (*
-  let add_terminal(builder, f)  = 
-    match L.block_terminator(L.insertion_block builder) with 
+  let if_stmt (m, b) ce ts es =
+      let cond_val = build_expr (m, b) (_,  ce) in
+      let start_bb = insertion_block llbuilder in
+      let curr_f = block_parent start_bb in
+
+      let then_bb = append_block context "then" curr_f in
+      position_at_end then_bb llbuilder;
+      let _(* then_val *) = codegen_stmt llbuilder then_ in
+
+      let else_bb = append_block context "else" the_function in
+      position_at_end else_bb llbuilder;
+      let _ (* else_val *) = codegen_stmt llbuilder else_ in
+*)      
+
+
+
+  let add_terminal (m, b) instr  = 
+    match L.block_terminator(L.insertion_block b) with 
         Some _ -> () 
-      | None -> ignore (f builder) in 
-*)
-  let build_stmt (m, b) stmt = match stmt with
+      | None -> ignore (instr b) in 
+
+  let rec build_stmt (m, b) stmt = match stmt with
       SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
     | SLocal(typ, name, (Void_t, SNoexpr)) ->
         let var = L.build_alloca (type_to_ll typ) name b in
@@ -266,28 +282,24 @@ let translate = function
         ignore(L.build_store e' var b);
         (m, b)
     | SMatrixDecl(md) -> add_mdecl (m, b) (md)
-    | _ -> (m, b)
-  in
-    (*
+    (*| SIf (ce, ts, es) -> if_stmt (m, b) ce ts es*)
     | SIf (predicate, then_stmt, else_stmt) -> 
         let bool_val = (build_expr(m, b) predicate) in 
-        let merge_bb = L.append_block context
-                        "merge" main in 
+        let merge_bb = L.append_block context "merge" main in 
         let b_br_merge = L.build_br merge_bb in 
-        let then_bb = L.append_block context 
-                      "then" main in 
-        add_terminal(L.builder_at_end, then_stmt)
-        (L.build_br merge_bb);
-        let else_bb = L.append_block context 
+        let then_bb = L.append_block context "then" main in 
 
-                    "else" main in 
-        add_terminal 
-        (stmt(L.builder_at_end context else_bb) else_stmt)
-        b_br_merge; 
-
-        ignore(L.build_cond_br bool_val then_bb else_bb builder);
-        L.builder_at_end context merge_bb
-  in *)
+        (*add_terminal (m, (build_stmt (m, (L.builder_at_end context then_bb)), then_stmt)) b_br_merge;*)
+        add_terminal (build_stmt (m, (L.builder_at_end context then_bb)) then_stmt) b_br_merge;
+        let else_bb = L.append_block context "else" main in 
+        
+        add_terminal (build_stmt (m, (L.builder_at_end context else_bb)) else_stmt) b_br_merge; 
+        ignore(L.build_cond_br bool_val then_bb else_bb b);
+        L.builder_at_end context merge_bb;
+        (m, b)
+    | _ -> (m, b)
+  in
+  
   let build_top_stmt (m, b) t_stmt = match t_stmt with
       SFunction(f_data) -> (m, b)
     | SStatement(stmt_data) -> build_stmt (m, b) stmt_data
