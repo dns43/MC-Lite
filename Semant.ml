@@ -45,6 +45,14 @@ let check_program = function
         body = [];
       } StringMap.empty
     in
+    let function_builtins = StringMap.add "printf" {
+        fname = "printf";
+        returnType = Int_t;
+        formals = [(Float_t, "x")];
+        body = [];
+      } function_builtins
+    in
+
 
     let function_decls = List.fold_left add_functions function_builtins top_stmts in
 
