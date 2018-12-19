@@ -170,16 +170,16 @@ let translate = function
           let e1' = build_expr (m, b) (Matrix_t(r, c), e1) in
           let msize = r*c in
           let dest = L.build_alloca (L.vector_type f64 msize) "dest_a" b in
-          let dest' = L.build_load dest "dest" b in
+          let dest' = ref (L.build_load dest "dest" b) in
           for i = 0 to r-1 do
             for j = 0 to c-1 do
               let ind1 = L.const_int i64 (i*c + j) in
               let dind = L.const_int i64 (j*r + i) in
               let el1 = L.build_extractelement e1' ind1 "el1" b in
-              ignore(dest' = L.build_insertelement dest' el1 dind "ins" b);
+              ignore(dest' := L.build_insertelement !dest' el1 dind "ins" b);
             done;
           done;
-          dest'
+          !dest'
       | SBinop(e1, op, e2) when t = Int_t ->
         let e1' = build_expr (m, b) e1
         and e2' = build_expr (m, b) e2 in
