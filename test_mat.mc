@@ -20,6 +20,7 @@ printmat(h-1.0);
 
 x = h*h;
 x = x.~;
+printmat(x);
 
 float f = x[0, 0];
 

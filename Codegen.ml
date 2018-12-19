@@ -145,7 +145,7 @@ let translate = function
                 let dest = L.build_alloca (L.vector_type f64 msize) "dest_a" b in
                 (* init result to 0s since used in accumantion *)
                 ignore(L.build_store (L.const_vector (Array.make msize (L.const_float f64 0.0))) dest b); 
-                let dest' = L.build_load dest "dest" b in
+                let dest' = ref (L.build_load dest "dest" b) in
                 for r = 0 to r1-1 do
                   for c = 0 to c2-1 do
                     let dind = L.const_int i64 (r*c2 + c) in
@@ -155,15 +155,15 @@ let translate = function
                       let ind2 = L.const_int i64 (i*c2) in
                       let el1 = L.build_extractelement e1' ind1 "el1" b in
                       let el2 = L.build_extractelement e2' ind2 "el2" b in
-                      let del = L.build_extractelement dest' dind "del" b in
+                      let del = L.build_extractelement !dest' dind "del" b in
                       let res = L.build_fadd del (L.build_fmul el1 el2 "tmp" b) "res" b in
                       (*let dest' = L.build_insertelement dest' res dind "ins" b in*)
-                      ignore(dest' = L.build_insertelement dest' res dind "ins" b);
+                      ignore(dest' := L.build_insertelement !dest' res dind "ins" b);
                     done;
                     end
                   done;
                 done;
-                dest'
+                !dest'
             | _, _ -> raise(Failure("Codegen Matrix Multiplication Unsupported Types")))
         | _ -> raise(Failure("Codegen Matrix Unsupported op")))
       | SUnop(Transpose, (Matrix_t(r, c), e1)) ->
