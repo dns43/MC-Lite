@@ -5,3 +5,8 @@ if (x == 2) {
 } else {
   printi(2);
 }
+
+while (x < 5) {
+  printi(x);
+  x = x+1;
+}

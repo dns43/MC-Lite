@@ -258,20 +258,32 @@ let translate = function
       SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
 	  | SBlock sl -> List.fold_left build_stmt (m, b) sl
     | SIf (predicate, then_stmt, else_stmt) ->
-          let bool_val = build_expr (m, b) predicate in
-	        let merge_bb = L.append_block context "merge" main in
-          let build_br_merge = L.build_br merge_bb in (* partial function *)
+        let bool_val = build_expr (m, b) predicate in
+        let merge_bb = L.append_block context "merge" main in
+        let build_br_merge = L.build_br merge_bb in (* partial function *)
 
-	        let then_bb = L.append_block context "then" main in
-          let m1, b1 = build_stmt (m, (L.builder_at_end context then_bb)) then_stmt in
-          ignore( build_br_merge b1 );
-					(*add_terminal (build_stmt (m, (L.builder_at_end context then_bb)) then_stmt) build_br_merge;*)
+        let then_bb = L.append_block context "then" main in
+        add_terminal (build_stmt (m, (L.builder_at_end context then_bb)) then_stmt) build_br_merge;
 
-	        let else_bb = L.append_block context "else" main in
-	        add_terminal (build_stmt (m, (L.builder_at_end context else_bb)) else_stmt) build_br_merge;
+        let else_bb = L.append_block context "else" main in
+        add_terminal (build_stmt (m, (L.builder_at_end context else_bb)) else_stmt) build_br_merge;
 
-	        ignore(L.build_cond_br bool_val then_bb else_bb b);
-	        (m, L.builder_at_end context merge_bb)
+        ignore(L.build_cond_br bool_val then_bb else_bb b);
+        (m, L.builder_at_end context merge_bb)
+    | SWhile (predicate, body) ->
+        let pred_bb = L.append_block context "while" main in
+        ignore(L.build_br pred_bb b);
+
+        let body_bb = L.append_block context "while_body" main in
+        add_terminal (build_stmt (m, (L.builder_at_end context body_bb)) body)
+          (L.build_br pred_bb);
+
+        let pred_builder = L.builder_at_end context pred_bb in
+        let bool_val = build_expr (m, pred_builder) predicate in
+
+        let merge_bb = L.append_block context "merge" main in
+        ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);
+        (m, L.builder_at_end context merge_bb)
     | SLocal(typ, name, (Void_t, SNoexpr)) ->
         let var = L.build_alloca (type_to_ll typ) name b in
         let (m, b) = (StringMap.add name var m, b) in
