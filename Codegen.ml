@@ -100,7 +100,7 @@ let translate = function
         let e1' = build_expr (m, b) e1
         and e2' = build_expr (m, b) e2 in
         (match op with
-            Add -> (match e1, e2 with
+          Add -> (match e1, e2 with
               (Matrix_t(r1, c1), _), (Matrix_t(r2, c2), _) ->
                 let msize = r1*c1 in
                 (*let dest = L.vector_type f64 msize in*)
@@ -110,12 +110,62 @@ let translate = function
                   let v1 = L.build_extractelement e1' (L.const_int i64 i) "v1" b in
                   let v2 = L.build_extractelement e2' (L.const_int i64 i) "v2" b in
                   let res = L.build_fadd v1 v2 "res" b in
-                  (*ignore(res);*)
                   ignore(L.build_insertelement dest' res (L.const_int i64 i) "ins" b);
                 done;
                 dest'
-            | _, _ -> raise(Failure("Codegen Matrix Unsupported Types")))
+            | _, _ -> raise(Failure("Codegen Matrix Addition Unsupported Types")))
+        | Sub -> (match e1, e2 with
+              (Matrix_t(r1, c1), _), (Matrix_t(r2, c2), _) ->
+                let msize = r1*c1 in
+                (*let dest = L.vector_type f64 msize in*)
+                let dest = L.build_alloca (L.vector_type f64 msize) "dest_a" b in
+                let dest' = L.build_load dest "dest" b in
+                for i = 1 to msize do
+                  let v1 = L.build_extractelement e1' (L.const_int i64 i) "v1" b in
+                  let v2 = L.build_extractelement e2' (L.const_int i64 i) "v2" b in
+                  let res = L.build_fsub v1 v2 "res" b in
+                  ignore(L.build_insertelement dest' res (L.const_int i64 i) "ins" b);
+                done;
+                dest'
+            | _, _ -> raise(Failure("Codegen Matrix Subtraction Unsupported Types")))
+        | Mult -> (match e1, e2 with
+              (Matrix_t(r1, c1), _), (Matrix_t(r2, c2), _) ->
+                let msize = r1*c1 in
+                let dest = L.build_alloca (L.vector_type f64 msize) "dest_a" b in
+                (* init result to 0s since used in accumantion *)
+                ignore(L.build_store (L.const_vector (Array.make msize (L.const_float f64 0.0))) dest b); 
+                let dest' = L.build_load dest "dest" b in
+                for r = 0 to r1-1 do
+                  for c = 0 to c2-1 do
+                    let dind = L.const_int i64 (r*c2 + c) in
+                    for i = 0 to r1-1 do
+                      let ind1 = L.const_int i64 (r*c1 + i) in
+                      let ind2 = L.const_int i64 (i*c2) in
+                      let el1 = L.build_extractelement e1' ind1 "el1" b in
+                      let el2 = L.build_extractelement e2' ind2 "el2" b in
+                      let del = L.build_extractelement dest' dind "del" b in
+                      let res = L.build_fadd del (L.build_fmul el1 el2 "tmp" b) "res" b in
+                      ignore(L.build_insertelement dest' res dind "ins" b);
+                    done;
+                  done;
+                done;
+                dest'
+            | _, _ -> raise(Failure("Codegen Matrix Multiplication Unsupported Types")))
         | _ -> raise(Failure("Codegen Matrix Unsupported op")))
+      | SUnop(Transpose, (Matrix_t(r, c), e1)) ->
+          let e1' = build_expr (m, b) (Matrix_t(r, c), e1) in
+          let msize = r*c in
+          let dest = L.build_alloca (L.vector_type f64 msize) "dest_a" b in
+          let dest' = L.build_load dest "dest" b in
+          for i = 0 to r-1 do
+            for j = 0 to c-1 do
+              let ind1 = L.const_int i64 (i*c + j) in
+              let dind = L.const_int i64 (j*r + i) in
+              let el1 = L.build_extractelement e1' ind1 "el1" b in
+              ignore(L.build_insertelement dest' el1 dind "ins" b);
+            done;
+          done;
+          dest'
       | SBinop(e1, op, e2) when t = Int_t ->
         let e1' = build_expr (m, b) e1
         and e2' = build_expr (m, b) e2 in

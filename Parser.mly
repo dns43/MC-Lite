@@ -207,7 +207,7 @@ expr:
 	| 	expr MTIMES  expr 					{ Binop($1, MMult,  $3) }
 	| 	expr DIVIDE expr 					{ Binop($1, Div,   $3) }
 	| 	expr MDIVIDE expr 					{ Binop($1, MDiv,   $3) }
-	| 	expr TRANSPOSE expr					{ Binop($1, Div,   $3) }
+	| 	expr TRANSPOSE 	  				{ Unop(Transpose, $1) }
 	| 	expr EQ     expr 					{ Binop($1, Equal, $3) }
 	| 	expr NEQ    expr 					{ Binop($1, Neq,   $3) }
 	| 	expr LT     expr 					{ Binop($1, Less,  $3) }
