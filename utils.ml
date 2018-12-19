@@ -64,7 +64,8 @@ and string_of_expr = function
 	|	Noexpr					-> ""
 	|	Call(f, el)				-> f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
 	|	Mat_Lit(el)		-> "[" ^ (string_of_array_primitive el) ^ "]"
-	|  	Unop(op, e)				-> (string_of_op op) ^ "(" ^ string_of_expr e ^ ")"
+	| Unop(op, e)				-> (string_of_op op) ^ "(" ^ string_of_expr e ^ ")"
+  | MIndex(e, i, j)				-> string_of_expr e ^ "["^string_of_int i^","^string_of_int j^"]"
 ;;
 
 

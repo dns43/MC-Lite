@@ -221,6 +221,7 @@ expr:
 	|   MINUS expr 							{ Unop (Neg, $2) }
 	| 	ID LPAREN actuals_opt RPAREN 		{ Call($1, $3) }
 	| 	LPAREN expr RPAREN 					{ $2 }
+	| 	expr LBRACKET INT_LITERAL COMMA INT_LITERAL RBRACKET { MIndex($1, $3, $5) }
 
 
 bracket_args:

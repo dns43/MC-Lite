@@ -63,9 +63,14 @@ let translate = function
       | _ -> false
   in
 
+  let mat_size mt = match mt with
+      Matrix_t(r, c) -> r*c, r, c
+    | _ -> raise(Failure("Codegen: Error expected Matrix_t (internal)"))
+  in
+
   let to_ll_float = function
       Float_t, SFloat_Lit f -> L.const_float f64 f
-    | _, _ -> raise (Failure ("Error expected float"))
+    | _, _ -> raise (Failure ("Codegen: Error expected float (internal)"))
   in
     
   let rec build_expr (m, b) (t, e) = match e with
@@ -75,10 +80,24 @@ let translate = function
       | SMat_Lit ml -> L.const_vector (Array.of_list (List.map to_ll_float  ml))
       | SNoexpr     -> L.const_int i64 0 (* TODO hacky should fix this *)
       | SId n       -> L.build_load (lookup n m) n b
-      | SAssign (s, (t, e)) -> 
-          let e' = build_expr (m, b) (t, e) in
-                          ignore(L.build_store e' (lookup s m) b); 
-                          e'
+      | SMIndex ((Matrix_t(r, c), me), i, j) ->
+          let me' = build_expr (m, b) (Matrix_t(r, c), me) in
+          let dind = L.const_int i64 (i*c + j) in
+          let el = L.build_extractelement me' dind "el" b in
+          el
+      | SMAssign (s, i, j, (t1, e1)) ->
+          let e1' = build_expr (m, b) (t1, e1) in
+          let msize, r, c = mat_size t in
+          let dind = L.const_int i64 (i*c + j) in
+          let dest = (lookup s m) in
+          let dest' = L.build_load dest "dest" b in
+          let res = L.build_insertelement dest' e1' dind "ins" b in
+          ignore(L.build_store res dest b);
+          dest'
+      | SAssign (s, (t, e1)) -> 
+          let e1' = build_expr (m, b) (t, e1) in
+          ignore(L.build_store e1' (lookup s m) b); 
+          e1'
       (*| SBinop ((Float_t,_ ) as e1, op, e2) ->*)
           (*let e1' = build_expr b e1*)
             (*and e2' = build_expr b e2 in*)
@@ -110,7 +129,7 @@ let translate = function
                   let v1 = L.build_extractelement e1' (L.const_int i64 i) "v1" b in
                   let v2 = L.build_extractelement e2' (L.const_int i64 i) "v2" b in
                   let res = L.build_fadd v1 v2 "res" b in
-                  ignore(L.build_insertelement dest' res (L.const_int i64 i) "ins" b);
+                  ignore(dest' = L.build_insertelement dest' res (L.const_int i64 i) "ins" b);
                 done;
                 dest'
             | _, _ -> raise(Failure("Codegen Matrix Addition Unsupported Types")))
@@ -124,7 +143,7 @@ let translate = function
                   let v1 = L.build_extractelement e1' (L.const_int i64 i) "v1" b in
                   let v2 = L.build_extractelement e2' (L.const_int i64 i) "v2" b in
                   let res = L.build_fsub v1 v2 "res" b in
-                  ignore(L.build_insertelement dest' res (L.const_int i64 i) "ins" b);
+                  ignore(dest' = L.build_insertelement dest' res (L.const_int i64 i) "ins" b);
                 done;
                 dest'
             | _, _ -> raise(Failure("Codegen Matrix Subtraction Unsupported Types")))
@@ -145,7 +164,8 @@ let translate = function
                       let el2 = L.build_extractelement e2' ind2 "el2" b in
                       let del = L.build_extractelement dest' dind "del" b in
                       let res = L.build_fadd del (L.build_fmul el1 el2 "tmp" b) "res" b in
-                      ignore(L.build_insertelement dest' res dind "ins" b);
+                      (*let dest' = L.build_insertelement dest' res dind "ins" b in*)
+                      ignore(dest' = L.build_insertelement dest' res dind "ins" b);
                     done;
                   done;
                 done;
@@ -162,7 +182,7 @@ let translate = function
               let ind1 = L.const_int i64 (i*c + j) in
               let dind = L.const_int i64 (j*r + i) in
               let el1 = L.build_extractelement e1' ind1 "el1" b in
-              ignore(L.build_insertelement dest' el1 dind "ins" b);
+              ignore(dest' = L.build_insertelement dest' el1 dind "ins" b);
             done;
           done;
           dest'
@@ -212,7 +232,16 @@ let translate = function
 *)
   let build_stmt (m, b) stmt = match stmt with
       SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
-    | SLocal(typ, name, e) -> add_var (m, b) (typ, name)
+    | SLocal(typ, name, (Void_t, SNoexpr)) ->
+        let var = L.build_alloca (type_to_ll typ) name b in
+        let (m, b) = (StringMap.add name var m, b) in
+        (m, b)
+    | SLocal(typ, name, e) ->
+        let e' = build_expr (m, b) e in
+        let var = L.build_alloca (type_to_ll typ) name b in
+        let (m, b) = (StringMap.add name var m, b) in
+        ignore(L.build_store e' var b);
+        (m, b)
     | SMatrixDecl(md) -> add_mdecl (m, b) (md)
     | _ -> (m, b)
   in
