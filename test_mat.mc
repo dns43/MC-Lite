@@ -10,6 +10,12 @@ h = h+x;
 x = h*h;
 x = x.~;
 
+float f;
+
+f = x[0, 0];
+
+x[0,1] = f;
+
 printi(63110);
 
 // asdf

@@ -117,7 +117,26 @@ let check_program = function
           | And | Or when same && t1 = Bool_t -> Bool_t
           | _ -> raise (Failure ("illegal binary operator "))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
-      | 	Assign(v, e) ->
+      | MIndex(me, i, j) ->
+          let mt, sme = check_expr m me in
+          (match mt with
+              Matrix_t(r, c) when i<r && j<c -> (Float_t, SMIndex((mt, sme), i, j))
+            | Matrix_t(r, c) -> raise (Failure("Invalid Matrix Indices"))
+            | _ -> raise (Failure("Invalid Indexing, must index Matrix!"))
+          )
+      | Assign(MIndex(me, i, j), e1) ->
+          let mt, sme = check_expr m me in
+          let v = (match sme with
+              SId(v) -> v
+            | _ -> raise(Failure("Invalid Matrix Assignment: must assign to matrix variable")))
+          in
+          let rt, e1' = check_expr m e1 in
+          let rt' = (match rt with
+              Float_t -> Float_t
+            | _ -> raise( Failure("Invalid Matrix Assignment: must assign float") ))
+          in
+          (mt, SMAssign(v, i, j, (rt', e1')))
+      | Assign(v, e) ->
           let lt = match v with
               Id v -> type_of_identifier m v
             | _  -> raise (Failure("Invalid assignment in " ^
@@ -130,8 +149,8 @@ let check_program = function
           in
           let (lt', v') = check_expr m v in
           let (rt, e') = check_expr m e in
-          let err = "illegal assignment "^string_of_primitive rt^" = "^string_of_primitive lt'
-          in (check_assign lt rt err, SAssign(var, (rt, e')))
+          let err = "illegal assignment "^string_of_primitive rt^" = "^string_of_primitive lt' in
+          (check_assign lt rt err, SAssign(var, (rt, e')))
       | 	Noexpr -> (Void_t, SNoexpr)
       |   Call(fname, args) as call -> 
           let fd = function_data fname in
@@ -165,7 +184,6 @@ let check_program = function
       | SInt_Lit i ->  Float_t, SFloat_Lit(float_of_int i)
       | _ -> raise (Failure ("Matrix values must be numbers"))
     in
-    
 
     let check_bool_expr m e = 
       let (t', e') = check_expr m e
