@@ -284,6 +284,8 @@ let translate = function
         let merge_bb = L.append_block context "merge" main in
         ignore(L.build_cond_br bool_val body_bb merge_bb pred_builder);
         (m, L.builder_at_end context merge_bb)
+    | SFor (e1, e2, e3, body) -> build_stmt (m, b)
+	    ( SBlock [SExpr e1 ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
     | SLocal(typ, name, (Void_t, SNoexpr)) ->
         let var = L.build_alloca (type_to_ll typ) name b in
         let (m, b) = (StringMap.add name var m, b) in
