@@ -232,7 +232,16 @@ let translate = function
 *)
   let build_stmt (m, b) stmt = match stmt with
       SExpr(t, e) -> ignore(build_expr (m, b) (t, e)); (m, b)
-    | SLocal(typ, name, e) -> add_var (m, b) (typ, name)
+    | SLocal(typ, name, (Void_t, SNoexpr)) ->
+        let var = L.build_alloca (type_to_ll typ) name b in
+        let (m, b) = (StringMap.add name var m, b) in
+        (m, b)
+    | SLocal(typ, name, e) ->
+        let e' = build_expr (m, b) e in
+        let var = L.build_alloca (type_to_ll typ) name b in
+        let (m, b) = (StringMap.add name var m, b) in
+        ignore(L.build_store e' var b);
+        (m, b)
     | SMatrixDecl(md) -> add_mdecl (m, b) (md)
     | _ -> (m, b)
   in
