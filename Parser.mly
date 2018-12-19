@@ -231,7 +231,7 @@ bracket_args:
 
 literals:
 	  INT_LITERAL      		{ Int_Lit($1) }
-  | LBRACKET mat_member_list RBRACKET    { Mat_Lit($2) }
+  | LBRACKET mat_member_list RBRACKET    { Mat_Lit(List.rev $2) }
   | FLOAT_LITERAL    		{ Float_Lit($1) }
 	| TRUE			   		{ Boolean_Lit(true) }
 	| FALSE			   		{ Boolean_Lit(false) }
