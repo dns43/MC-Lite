@@ -124,13 +124,13 @@ let check_program = function
                 Matrix_t(r1, c1)
               else
                 raise(Failure("Matrix dimensions must match for add/sub"))
-          | Mult when same && is_mat_t t1 -> (* TODO check rows/cols match *)
+          | Mult when is_mat_t t1 && is_mat_t t2 -> (* TODO check rows/cols match *)
               let r1, c1 = match t1 with Matrix_t(r, c) -> r, c in
               let r2, c2 = match t2 with Matrix_t(r, c) -> r, c in
               if c1 = r2 then
                 Matrix_t(r1, c2)
               else
-                raise(Failure("Matrix rows1 must match cols2 for multiplication"))
+                raise(Failure("Matrix cols1 must match rows2 for multiplication"))
           | Add | Sub | Mult | Div when is_mat_t t1 && t2 = Float_t ->
               let r1, c1 = match t1 with Matrix_t(r, c) -> r, c in
               Matrix_t(r1, c1)
@@ -140,7 +140,7 @@ let check_program = function
           | Equal | Neq | Less | Leq | Greater | Geq
                      when same && (t1 = Int_t || t1 = Float_t) -> Bool_t
           | And | Or when same && t1 = Bool_t -> Bool_t
-          | _ -> raise (Failure ("illegal binary operator "))
+          | _ -> raise (Failure ("illegal binary operator "^string_of_op op^" "))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
       | MIndex(me, i, j) ->
           let mt, sme = check_expr m me in
