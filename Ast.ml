@@ -22,7 +22,7 @@ type expr =
 	| 	Noexpr
 	| 	Call of string * expr list  
 	|  	Unop of op * expr
-	|  	MIndex of expr * int * int
+	|  	MIndex of expr * expr * expr
 
 
 type mdecl = {

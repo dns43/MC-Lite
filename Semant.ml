@@ -142,15 +142,18 @@ let check_program = function
           | And | Or when same && t1 = Bool_t -> Bool_t
           | _ -> raise (Failure ("illegal binary operator "^string_of_op op^" "))
           in (ty, SBinop((t1, e1'), op, (t2, e2')))
-      | MIndex(me, i, j) ->
+      | MIndex(me, ie, je) ->
           let mt, sme = check_expr m me in
+          let it, sie = check_expr m ie in
+          let jt, sje = check_expr m je in
           (match mt with
-              Matrix_t(r, c) when i<r && j<c -> (Float_t, SMIndex((mt, sme), i, j))
-            | Matrix_t(r, c) -> raise (Failure("Invalid Matrix Indices"))
+              Matrix_t(r, c) when it = Int_t && jt = Int_t -> (Float_t, SMIndex((mt, sme), (it, sie), (jt, sje)))
             | _ -> raise (Failure("Invalid Indexing, must index Matrix!"))
           )
-      | Assign(MIndex(me, i, j), e1) ->
+      | Assign(MIndex(me, ie, je), e1) ->
           let mt, sme = check_expr m me in
+          let it, sie = check_expr m ie in
+          let jt, sje = check_expr m je in
           let v = (match sme with
               SId(v) -> v
             | _ -> raise(Failure("Invalid Matrix Assignment: must assign to matrix variable")))
@@ -160,7 +163,11 @@ let check_program = function
               Float_t -> Float_t
             | _ -> raise( Failure("Invalid Matrix Assignment: must assign float") ))
           in
-          (mt, SMAssign(v, i, j, (rt', e1')))
+          let it', jt' = (match it, jt with
+              Int_t, Int_t -> Int_t, Int_t
+            | _ , _ -> raise( Failure("Invalid Matrix Assignment: must index with ints "^string_of_primitive it^" "^string_of_primitive jt) ))
+          in
+          (mt, SMAssign(v, (it', sie), (jt', sje), (rt', e1')))
       | Assign(v, e) ->
           let lt = match v with
               Id v -> type_of_identifier m v

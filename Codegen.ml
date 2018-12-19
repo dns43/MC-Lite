@@ -80,15 +80,21 @@ let translate = function
       | SMat_Lit ml -> L.const_vector (Array.of_list (List.map to_ll_float  ml))
       | SNoexpr     -> L.const_int i64 0 (* TODO hacky should fix this *)
       | SId n       -> L.build_load (lookup n m) n b
-      | SMIndex ((Matrix_t(r, c), me), i, j) ->
+      | SMIndex ((Matrix_t(r, c), me), ie, je) ->
           let me' = build_expr (m, b) (Matrix_t(r, c), me) in
-          let dind = L.const_int i64 (i*c + j) in
+          let ie' = build_expr (m, b) (ie) in
+          let je' = build_expr (m, b) (je) in
+          let c' = L.const_int i64 c in
+          let dind = L.build_add (L.build_mul ie' c' "mul" b) je' "add" b in
           let el = L.build_extractelement me' dind "el" b in
           el
-      | SMAssign (s, i, j, (t1, e1)) ->
+      | SMAssign (s, ie, je, (t1, e1)) ->
           let e1' = build_expr (m, b) (t1, e1) in
+          let ie' = build_expr (m, b) (ie) in
+          let je' = build_expr (m, b) (je) in
           let msize, r, c = mat_size t in
-          let dind = L.const_int i64 (i*c + j) in
+          let c' = L.const_int i64 c in
+          let dind = L.build_add (L.build_mul ie' c' "mul" b) je' "add" b in
           let dest = (lookup s m) in
           let dest' = L.build_load dest "dest" b in
           let res = L.build_insertelement dest' e1' dind "ins" b in

@@ -12,11 +12,11 @@ and sx =
 	| 	SId of string
 	| 	SBinop of sexpr * op * sexpr
 	| 	SAssign of string * sexpr
-	| 	SMAssign of string * int * int * sexpr
+	| 	SMAssign of string * sexpr * sexpr * sexpr
 	| 	SNoexpr
 	| 	SCall of string * sexpr list  
 	|  	SUnop of op * sexpr
-	|  	SMIndex of sexpr * int * int
+	|  	SMIndex of sexpr * sexpr * sexpr
 
 
 type smdecl = {
