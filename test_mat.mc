@@ -18,9 +18,21 @@ printmat(1.0+h);
 printi(5);
 printmat(h-1.0);
 
-x = h*h;
-x = x.~;
-printmat(x);
+x = h*z;
+printi(6);
+printmat(y);
+mat[2,3] t = y.~;
+printi(7);
+printmat(t);
+mat[2,3] t = y;
+printi(8);
+printmat(t);
+
+printi(90);
+printmat(t*0.2);
+printi(91);
+printmat(0.2*t);
+
 
 float f = x[0, 0];
 

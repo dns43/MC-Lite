@@ -164,6 +164,14 @@ let translate = function
                   done;
                 done;
                 !dest'
+            | (Matrix_t(r1, c1), _), (Float_t, _) ->
+                let msize = r1 * c1 in
+                let broadcast = L.const_vector (Array.make msize e2') in
+                L.build_fmul e1' broadcast "mul" b
+            | (Float_t, _), (Matrix_t(r1, c1), _) ->
+                let msize = r1 * c1 in
+                let broadcast = L.const_vector (Array.make msize e1') in
+                L.build_fmul e2' broadcast "mul" b
             | _, _ -> raise(Failure("Codegen Matrix Multiplication Unsupported Types")))
         | _ -> raise(Failure("Codegen Matrix Unsupported op")))
       | SUnop(Transpose, (Matrix_t(r, c), e1)) ->
