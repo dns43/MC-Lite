@@ -7,6 +7,8 @@ x = [4,5,6,7];
 mat[2, 2] h = x;
 h = h+x;
 
+x = h*h;
+
 printi(63110);
 
 // asdf
