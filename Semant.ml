@@ -207,6 +207,8 @@ let check_program = function
       match sv with
         SFloat_Lit _ -> Float_t, sv
       | SInt_Lit i ->  Float_t, SFloat_Lit(float_of_int i)
+      | SUnop(Neg, (Float_t, SFloat_Lit(v))) ->  Float_t, SFloat_Lit(-.v)
+      | SUnop(Neg, (Int_t, SInt_Lit(v))) ->  Float_t, SFloat_Lit(-.(float_of_int v))
       | _ -> raise (Failure ("Matrix values must be numbers"))
     in
 

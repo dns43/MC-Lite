@@ -171,6 +171,12 @@ let translate = function
             done;
           done;
           !dest'
+      | SUnop(Neg, (Float_t, e1)) ->
+          let e1' = build_expr (m, b) (Float_t, e1) in
+          L.build_fneg e1' "neg" b
+      | SUnop(Neg, (Int_t, e1)) ->
+          let e1' = build_expr (m, b) (Int_t, e1) in
+          L.build_neg e1' "neg" b
       | SBinop((Float_t, e1), op, (Float_t, e2)) ->
           let e1' = build_expr (m, b) (Float_t, e1)
           and e2' = build_expr (m, b) (Float_t, e2) in
