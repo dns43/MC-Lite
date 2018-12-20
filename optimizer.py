@@ -37,6 +37,7 @@ def collect_constants(mod, bb):
     global constants 
     
     bb_counter += 1;
+    linsn = bb.instructions[1]
     for insn in bb.instructions:
         global insn_counter
         insn_counter += 1;
@@ -44,24 +45,21 @@ def collect_constants(mod, bb):
 
 # A variable gots defined, and assigned a constant value
         if insn.opcode == OPCODE_ALLOCA:
-            print(insn.name)
-            print(dir(insn))
-            ninsn = insn.next()
-            if ninsn.opcode == OPCODE_STORE:
-                if isinstance(insn.operands[0], ConstantInt):
-                    constants[insn] = insn.operands[0]
+            linsn = insn
+
+        if insn.opcode == OPCODE_STORE and linsn.opcode == OPCODE_ALLOCA:
+            linsn = insn
+            if isinstance(insn.operands[0], ConstantInt):
+                constants[insn] = insn.operands[0]
 
 # The re-definitions of a variable kills its liveness
         if insn.opcode == OPCODE_STORE:
+            linsn = insn
             for c in constants:
                 if insn.operands[1] == c:
                     constants.pop(insn)
 
-
-
-
-
-mod = Module.from_bitcode(file("testcase/llvm-mod-firmware.bc"))
+mod = Module.from_bitcode(file(sys.argv[1]))
 functions = mod.functions
 for f in functions:
     f_counter += 1;
@@ -74,5 +72,8 @@ for f in functions:
         while True:
             bb = replace_constants(mod, bb)
             if not bb: break
+print(f_counter)
+print(bb_counter)
+print(insn_counter)
 
 
