@@ -8,7 +8,7 @@ mat[2,2] B = [1, 2, 3, 4];
 
 mat[2,2] C = 1;
 
-mat D[1,1];
+mat[1,1]D;
 
 //matrix indexing 
 
