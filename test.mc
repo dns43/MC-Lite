@@ -3,11 +3,9 @@
 // variable declaration and assignment
 int x = 1;
 
-// increment in place
-x++;
 
 // declare 1x3 matrix and assign values
-mat m[1, 3];
+mat [1, 3]m;
 m = [1.0, 1.0, 9999.9];
 
 // assign incorrect number of values
@@ -16,29 +14,14 @@ m = [1, 2, 3, 4];
 
 // declar 2x2 matrix and assign values in one step
 // note ints will be cast to floats when assigned to matrix
-mat m2[2, 2] = [1,2,3,4];
-mat m3[2, 2] = [6,7,8,9];
-mat m4[2, 2] = m2 * m3;
+mat [2, 2]m2 = [1,2,3,4];
+mat [2, 2]m3 = [6,7,8,9];
+mat [2, 2]m4 = m2 * m3;
 
 // element wise multiplication:
 m4 = m2 .* m3;
 
 
-// sample function declaration
-// note local variable declarations overide enclosing scope
-int my_function (int x, float y) {
 
-  // z is scoped within {}
-  int z = 0;
-  int i = 0;
 
-  // while loop
-  while (i < 10) {
-    z = z + i;
-    i++;
-  }
-  return z;
 }
-
-// function call
-my_function(1, 2.0);
