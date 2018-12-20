@@ -69,6 +69,8 @@ for f in functions:
         bb = collect_constants(mod, bb)
         if not bb: break
     if constants:
+        for c in constants:
+            print(c)
         while True:
             bb = replace_constants(mod, bb)
             if not bb: break
