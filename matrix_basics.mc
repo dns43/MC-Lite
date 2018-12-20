@@ -2,11 +2,11 @@
 
 //matrix initialization 
 
-mat A[2,2]; 
+mat[2,2] A; 
 
-mat B[2,2] = [1, 2, 3, 4];
+mat[2,2] B = [1, 2, 3, 4];
 
-mat C[2,2] = 1;
+mat[2,2] C = 1;
 
 mat D[1,1];
 
@@ -17,7 +17,6 @@ float a;
 float b; 
 
 i = B[0,1];
-D = B [1:2, 1:2];
 
 C = A .* B 
 /*example of element-wise multiplication, matrix C will look like - 
